@@ -35,19 +35,14 @@ const perform = async (z, bundle) => {
   const settleStatus = trimStr(bundle.inputData.settleStatus);
   if (settleStatus) businessBody.settleStatus = settleStatus;
 
-  const innerBodyForSigning = { ...businessBody, merchantId: mid };
-  const signature = await PaytmChecksum.generateSignature(
-    JSON.stringify(innerBodyForSigning),
-    keySecret
-  );
-
-  const outerEnvelope = buildSettlementEnvelope(mid, businessBody, signature);
+  const outerEnvelope = buildSettlementEnvelope(mid, businessBody);
+  const signature = await PaytmChecksum.generateSignature(JSON.stringify(outerEnvelope), keySecret);
   const url = buildUrl(bundle.authData.environment, SETTLEMENT_PATH(mid));
 
   const response = await z.request({
     method: 'POST',
     url,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', signature },
     body: JSON.stringify(outerEnvelope),
   });
 

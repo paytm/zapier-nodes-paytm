@@ -26,20 +26,15 @@ const perform = async (z, bundle) => {
   const settlementOrderId = trimStr(bundle.inputData.settlementOrderId);
   if (settlementOrderId) businessBody.settlementOrderId = settlementOrderId;
 
-  // The inner body that is signed = businessBody + merchantId (added by buildSettlementEnvelope)
-  const innerBodyForSigning = { ...businessBody, merchantId: mid };
-  const signature = await PaytmChecksum.generateSignature(
-    JSON.stringify(innerBodyForSigning),
-    keySecret
-  );
-
-  const outerEnvelope = buildSettlementEnvelope(mid, businessBody, signature);
+  // Build envelope first, then sign the full outerBody — signature goes in HTTP header 'signature'
+  const outerEnvelope = buildSettlementEnvelope(mid, businessBody);
+  const signature = await PaytmChecksum.generateSignature(JSON.stringify(outerEnvelope), keySecret);
   const url = buildUrl(bundle.authData.environment, SETTLEMENT_PATH(mid));
 
   const response = await z.request({
     method: 'POST',
     url,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', signature },
     body: JSON.stringify(outerEnvelope),
   });
 

@@ -81,9 +81,9 @@ const formatDateToDdMmYyyyHhMmSs = (isoString) => {
 
 const formatReqTimeIST = () => formatDateToIst(new Date().toISOString());
 
-// Builds the settlement envelope. The signature is embedded in payload.head
-// to match the AES tokenisation pattern used by all other Paytm checksum APIs.
-const buildSettlementEnvelope = (merchantId, businessBody, signature) => {
+// Builds the settlement envelope (no signature — caller signs the full outerBody
+// and passes it as HTTP header 'signature', confirmed against Paytm staging API).
+const buildSettlementEnvelope = (merchantId, businessBody) => {
   const requestId = randomUUID();
   const innerBody = {};
   for (const [k, v] of Object.entries({ ...businessBody, merchantId })) {
@@ -95,9 +95,6 @@ const buildSettlementEnvelope = (merchantId, businessBody, signature) => {
       head: {
         reqTime: formatReqTimeIST(),
         reqMsgId: requestId,
-        tokenType: 'AES',
-        signature,
-        channelId: 'WEB',
       },
       body: innerBody,
     },
