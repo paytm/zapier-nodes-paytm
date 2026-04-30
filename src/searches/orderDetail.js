@@ -77,6 +77,16 @@ module.exports = {
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'bizOrderId', label: 'Order ID' },
+      { key: 'txnAmount', label: 'Transaction Amount' },
+      { key: 'status', label: 'Status' },
+      { key: 'txnDate', label: 'Transaction Date', type: 'datetime' },
+      { key: 'payMode', label: 'Payment Mode' },
+      { key: 'settlementAmount', label: 'Settlement Amount' },
+      { key: 'settlementDate', label: 'Settlement Date', type: 'datetime' },
+    ],
     sample: {
       id: 'ORDER12345',
       bizOrderId: 'ORDER12345',

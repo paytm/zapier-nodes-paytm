@@ -223,6 +223,15 @@ module.exports = {
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'linkId', label: 'Link ID' },
+      { key: 'linkUrl', label: 'Payment URL' },
+      { key: 'linkName', label: 'Link Name' },
+      { key: 'linkType', label: 'Link Type' },
+      { key: 'amount', label: 'Amount' },
+      { key: 'merchantRequestId', label: 'Merchant Request ID' },
+    ],
     sample: {
       id: 'LINK12345',
       linkId: 'LINK12345',

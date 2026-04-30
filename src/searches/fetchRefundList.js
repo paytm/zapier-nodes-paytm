@@ -101,6 +101,15 @@ module.exports = {
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'refId', label: 'Refund Reference ID' },
+      { key: 'txnId', label: 'Transaction ID' },
+      { key: 'orderId', label: 'Order ID' },
+      { key: 'refundAmount', label: 'Refund Amount' },
+      { key: 'status', label: 'Status' },
+      { key: 'txnDate', label: 'Refund Date', type: 'datetime' },
+    ],
     sample: {
       id: 'REF12345',
       refId: 'REF12345',

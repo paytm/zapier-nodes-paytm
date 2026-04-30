@@ -123,6 +123,14 @@ module.exports = {
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'settlementBillId', label: 'Settlement Bill ID' },
+      { key: 'utrNo', label: 'UTR Number' },
+      { key: 'settlementAmount', label: 'Settlement Amount' },
+      { key: 'settleStatus', label: 'Settlement Status' },
+      { key: 'settlementDate', label: 'Settlement Date', type: 'datetime' },
+    ],
     sample: {
       id: 'BILL12345',
       settlementBillId: 'BILL12345',

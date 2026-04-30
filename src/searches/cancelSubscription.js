@@ -51,6 +51,13 @@ module.exports = {
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'subsId', label: 'Subscription ID' },
+      { key: 'resultCode', label: 'Result Code' },
+      { key: 'resultStatus', label: 'Result Status' },
+      { key: 'resultMsg', label: 'Result Message' },
+    ],
     sample: {
       id: 'SUBS12345',
       subsId: 'SUBS12345',

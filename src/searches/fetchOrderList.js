@@ -153,6 +153,15 @@ module.exports = {
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'orderId', label: 'Order ID' },
+      { key: 'merchantOrderId', label: 'Merchant Order ID' },
+      { key: 'txnAmount', label: 'Transaction Amount' },
+      { key: 'status', label: 'Status' },
+      { key: 'txnDate', label: 'Transaction Date', type: 'datetime' },
+      { key: 'payMode', label: 'Payment Mode' },
+    ],
     sample: {
       id: 'ORDER12345',
       orderId: 'ORDER12345',

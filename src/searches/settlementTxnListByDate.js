@@ -96,6 +96,14 @@ module.exports = {
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'txnId', label: 'Transaction ID' },
+      { key: 'orderId', label: 'Order ID' },
+      { key: 'settlementAmount', label: 'Settlement Amount' },
+      { key: 'settlementDate', label: 'Settlement Date', type: 'datetime' },
+      { key: 'settleStatus', label: 'Settlement Status' },
+    ],
     sample: {
       id: 'STXN12345',
       txnId: 'STXN12345',

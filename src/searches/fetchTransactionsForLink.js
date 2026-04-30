@@ -93,6 +93,14 @@ module.exports = {
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'txnId', label: 'Transaction ID' },
+      { key: 'orderId', label: 'Order ID' },
+      { key: 'txnAmount', label: 'Transaction Amount' },
+      { key: 'status', label: 'Status' },
+      { key: 'txnDate', label: 'Transaction Date', type: 'datetime' },
+    ],
     sample: {
       id: 'TXN12345',
       txnId: 'TXN12345',
