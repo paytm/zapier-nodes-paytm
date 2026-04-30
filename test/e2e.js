@@ -33,6 +33,9 @@ try {
     });
 } catch {}
 
+// Use node-fetch v2 for Node 16 compatibility; native fetch is used on Node 18+
+const fetch = globalThis.fetch ?? require('node-fetch');
+
 const PaytmChecksum = require('../src/checksum');
 const {
   buildUrl,
