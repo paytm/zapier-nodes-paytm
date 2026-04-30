@@ -68,6 +68,7 @@ module.exports = {
       'Retrieves a list of settlement bills (payouts) for a merchant within a specified date range.',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'settlementStartTime',

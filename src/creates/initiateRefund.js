@@ -80,6 +80,7 @@ module.exports = {
     description: 'Initiates a refund for a completed Paytm transaction.',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'orderId',

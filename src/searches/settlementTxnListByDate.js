@@ -57,6 +57,7 @@ module.exports = {
       'Retrieves settlement transactions for a merchant within a specified date range.',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'settlementStartTime',

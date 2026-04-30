@@ -43,6 +43,7 @@ module.exports = {
     description: 'Checks the current status of a refund using the order ID and refund reference ID.',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'orderId',

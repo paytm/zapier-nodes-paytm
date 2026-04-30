@@ -81,6 +81,7 @@ module.exports = {
       'Retrieves a paginated list of orders from the Paytm merchant passbook for a given date range.',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'fromDate',

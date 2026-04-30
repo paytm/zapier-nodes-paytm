@@ -61,6 +61,7 @@ module.exports = {
     description: 'Retrieves all transactions made against a specific Paytm payment link.',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'linkId',

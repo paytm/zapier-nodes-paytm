@@ -113,6 +113,7 @@ module.exports = {
     description: 'Creates a new Paytm payment link (FIXED amount or GENERIC open amount).',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'linkType',

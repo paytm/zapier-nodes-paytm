@@ -45,6 +45,7 @@ module.exports = {
     description: 'Changes a Paytm subscription status to SUSPENDED (pause) or ACTIVE (resume).',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'subsId',

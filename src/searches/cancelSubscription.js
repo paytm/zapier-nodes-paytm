@@ -40,6 +40,7 @@ module.exports = {
     description: 'Permanently cancels a Paytm subscription. This action cannot be undone.',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'subsId',

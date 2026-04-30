@@ -84,6 +84,7 @@ module.exports = {
     description: 'Retrieves a list of payment links, optionally filtered by date, status, or customer details.',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'merchantRequestId',

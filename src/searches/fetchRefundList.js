@@ -60,6 +60,7 @@ module.exports = {
       'Retrieves a paginated list of refunds from the merchant passbook for a given date range (max 30 days).',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'startDate',

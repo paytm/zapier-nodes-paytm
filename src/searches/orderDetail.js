@@ -52,6 +52,7 @@ module.exports = {
       'Retrieves detailed information about a specific order including settlement data.',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'bizOrderId',
