@@ -57,6 +57,7 @@ module.exports = {
       'Retrieves settlement transactions for a merchant within a specified date range.',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'settlementStartTime',
@@ -95,6 +96,14 @@ module.exports = {
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'txnId', label: 'Transaction ID' },
+      { key: 'orderId', label: 'Order ID' },
+      { key: 'settlementAmount', label: 'Settlement Amount' },
+      { key: 'settlementDate', label: 'Settlement Date', type: 'datetime' },
+      { key: 'settleStatus', label: 'Settlement Status' },
+    ],
     sample: {
       id: 'STXN12345',
       txnId: 'STXN12345',

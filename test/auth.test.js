@@ -2,6 +2,34 @@
 
 const PaytmChecksum = require('../src/checksum');
 
+describe('PaytmChecksum — known vectors', () => {
+  const key16 = 'abcdefghijklmnop';
+
+  test('getStringByParams sorts keys alphabetically and joins values with pipe', () => {
+    const result = PaytmChecksum.getStringByParams({ mid: 'TEST123', amount: '100.00', txnType: 'REFUND' });
+    expect(result).toBe('100.00|TEST123|REFUND'); // amount < mid < txnType
+  });
+
+  test('calculateChecksum with fixed salt produces exact known output', () => {
+    const params = '100.00|TEST123|REFUND';
+    const result = PaytmChecksum.calculateChecksum(params, key16, 'TESTSALT');
+    expect(result).toBe('V8lCAlIJz0i8f5yHOUQ9FxgspMQabk9oLEmzXat1Vuh/qg6kofBE9auRnSpaZBnD0ZnnnEJKnB7Wy6jlbvGyVe4Rrew2T8f/xU0ClHavuVk=');
+  });
+
+  test('different keys produce different output for same params and salt', () => {
+    const params = 'test|params';
+    const r1 = PaytmChecksum.calculateChecksum(params, 'abcdefghijklmnop', 'SALT');
+    const r2 = PaytmChecksum.calculateChecksum(params, 'ponmlkjihgfedcba', 'SALT');
+    expect(r1).not.toBe(r2);
+  });
+
+  test('different params produce different output for same key and salt', () => {
+    const r1 = PaytmChecksum.calculateChecksum('params_a', key16, 'SALT');
+    const r2 = PaytmChecksum.calculateChecksum('params_b', key16, 'SALT');
+    expect(r1).not.toBe(r2);
+  });
+});
+
 describe('PaytmChecksum', () => {
   const key16 = 'abcdefghijklmnop'; // exactly 16 bytes
 

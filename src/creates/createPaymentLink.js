@@ -113,16 +113,14 @@ module.exports = {
     description: 'Creates a new Paytm payment link (FIXED amount or GENERIC open amount).',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'linkType',
         label: 'Link Type',
         type: 'string',
         required: true,
-        choices: [
-          { value: 'FIXED', label: 'Fixed (preset amount)' },
-          { value: 'GENERIC', label: 'Generic (customer enters amount)' },
-        ],
+        choices: ['FIXED', 'GENERIC'],
         default: 'FIXED',
       },
       {
@@ -225,6 +223,15 @@ module.exports = {
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'linkId', label: 'Link ID' },
+      { key: 'linkUrl', label: 'Payment URL' },
+      { key: 'linkName', label: 'Link Name' },
+      { key: 'linkType', label: 'Link Type' },
+      { key: 'amount', label: 'Amount' },
+      { key: 'merchantRequestId', label: 'Merchant Request ID' },
+    ],
     sample: {
       id: 'LINK12345',
       linkId: 'LINK12345',

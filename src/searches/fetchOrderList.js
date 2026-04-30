@@ -81,6 +81,7 @@ module.exports = {
       'Retrieves a paginated list of orders from the Paytm merchant passbook for a given date range.',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'fromDate',
@@ -118,12 +119,7 @@ module.exports = {
         key: 'orderSearchStatus',
         label: 'Order Status',
         type: 'string',
-        choices: [
-          { value: 'ALL', label: 'All' },
-          { value: 'SUCCESS', label: 'Success' },
-          { value: 'FAILURE', label: 'Failure' },
-          { value: 'PENDING', label: 'Pending' },
-        ],
+        choices: ['ALL', 'SUCCESS', 'FAILURE', 'PENDING'],
         default: 'SUCCESS',
         helpText: 'Filter orders by status.',
       },
@@ -157,6 +153,15 @@ module.exports = {
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'orderId', label: 'Order ID' },
+      { key: 'merchantOrderId', label: 'Merchant Order ID' },
+      { key: 'txnAmount', label: 'Transaction Amount' },
+      { key: 'status', label: 'Status' },
+      { key: 'txnDate', label: 'Transaction Date', type: 'datetime' },
+      { key: 'payMode', label: 'Payment Mode' },
+    ],
     sample: {
       id: 'ORDER12345',
       orderId: 'ORDER12345',

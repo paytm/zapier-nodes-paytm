@@ -43,6 +43,7 @@ module.exports = {
     description: 'Checks the current status of a refund using the order ID and refund reference ID.',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'orderId',
@@ -60,6 +61,15 @@ module.exports = {
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'refId', label: 'Refund Reference ID' },
+      { key: 'orderId', label: 'Order ID' },
+      { key: 'refundAmount', label: 'Refund Amount' },
+      { key: 'status', label: 'Status' },
+      { key: 'txnDate', label: 'Refund Date', type: 'datetime' },
+      { key: 'refundId', label: 'Paytm Refund ID' },
+    ],
     sample: {
       id: 'REF12345',
       refId: 'REF12345',

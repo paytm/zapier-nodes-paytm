@@ -6,6 +6,19 @@ Official Zapier CLI integration for Paytm Payments.
 
 ---
 
+## Connecting Your Paytm Account
+
+1. Open your Zap and click **Sign in** under the Paytm app.
+2. Enter your credentials from the [Paytm Dashboard → API Keys](https://dashboard.paytmpayments.com/next/apikeys):
+   - **Merchant ID** — your MID (e.g. `PAYTM12345678901`)
+   - **Key Secret** — your AES key, must be exactly 16 bytes
+   - **Environment** — choose `staging` for testing, `production` for live transactions
+3. Click **Yes, Continue**. Zapier will run a test order-list call to verify the credentials.
+
+> **Staging vs Production:** Staging uses `securestage.paytmpayments.com`. Settlement operations (`Settlement: Transaction List`, `Settlement: Bill List`, `Order Detail`) will return empty results in staging as settlement data is only available in production.
+
+---
+
 ## Supported Operations (13 total)
 
 | # | Zapier Key | Category | Type | Endpoint |
@@ -23,6 +36,22 @@ Official Zapier CLI integration for Paytm Payments.
 | 11 | `fetchSubscriptionStatus` | Subscription | Search | `POST /subscription/subscription/checkStatus` |
 | 12 | `pauseResumeSubscription` | Subscription | Create | `POST /subscription/subscription/status/modify` |
 | 13 | `cancelSubscription` | Subscription | Create | `POST /subscription/subscription/cancel` |
+
+---
+
+## Example Zaps
+
+**Auto-refund failed orders**
+Trigger: Schedule (daily) → Search: `fetchOrderList` (status=FAILURE) → Create: `initiateRefund`
+
+**Notify on new payment link payment**
+Trigger: Schedule (every 15 min) → Search: `fetchTransactionsForLink` → Filter: status=SUCCESS → Action: Send Slack/email notification
+
+**Daily settlement reconciliation**
+Trigger: Schedule (daily 9 AM) → Search: `settlementBillList` → Action: Append rows to Google Sheets
+
+**Pause subscription on failed payment**
+Trigger: Webhook (payment failure event) → Create: `pauseResumeSubscription` (status=SUSPENDED) → Action: Send SMS to customer
 
 ---
 
@@ -46,16 +75,36 @@ All operations use the Paytm AES-128-CBC checksum algorithm (native Node.js `cry
 2. SHA-256(params `|` salt) → hex → append salt
 3. AES-128-CBC encrypt with IV `@@@@&&&&####$$$$`
 
-Settlement operations use a different envelope format — see `docs/api-mapping.md`.
+Settlement operations (`settlementTxnListByDate`, `settlementBillList`, `orderDetail`) use a different envelope format where the signature is passed as an HTTP header rather than in the request body — see `docs/api-mapping.md`.
 
 ---
 
-## Setup
+## Troubleshooting
+
+**"Paytm Key Secret must be exactly 16 bytes"**
+Your Key Secret is the wrong length. Copy it directly from [Dashboard → API Keys](https://dashboard.paytmpayments.com/next/apikeys). Watch out for leading/trailing spaces.
+
+**"At least one of Subscription ID, Order ID, or Link ID is required"**
+`fetchSubscriptionStatus` needs at least one identifier. Provide `subsId`, `orderId`, or `linkId`.
+
+**Settlement operations return empty results**
+Settlement data (`settlementTxnListByDate`, `settlementBillList`) is only available in production. Switch your connected account to `production` environment.
+
+**Auth test fails with HTTP 401**
+Your MID and Key Secret don't match, or you've selected the wrong environment. Staging MIDs only work against the staging environment.
+
+**"Refund Amount must be a positive number"**
+Pass a numeric value greater than 0. The value is formatted to two decimal places before being sent to Paytm.
+
+---
+
+## Setup (Developer)
 
 ```bash
 npm install
+nvm use 22
 npx zapier login
-npx zapier register "Paytm"   # or link to existing app
+npx zapier register "Paytm"   # first time only
 npx zapier push
 ```
 
@@ -65,12 +114,12 @@ npx zapier push
 npm test
 ```
 
-Tests cover: checksum algorithm, date formatters, URL builder, and module structure assertions for all 13 operations.
+103 tests across 4 suites: checksum known vectors, auth key validation, date formatters, URL builder, and module structure assertions for all 13 operations.
 
 ### Local validation
 
 ```bash
-npx zapier validate
+nvm use 22 && npx zapier validate
 ```
 
 ---
@@ -97,6 +146,13 @@ src/
 └── creates/            # Write operations (2 modules + 2 mutations in searches/)
     ├── createPaymentLink.js
     └── initiateRefund.js
+test/
+├── auth.test.js        # Checksum known vectors, key validation, utils
+├── operations.test.js  # Structure assertions for all 11 remaining operations
+├── creates/
+│   └── createPaymentLink.test.js
+└── searches/
+    └── fetchOrderList.test.js
 ```
 
 ---

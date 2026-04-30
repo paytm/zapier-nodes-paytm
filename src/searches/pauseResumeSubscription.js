@@ -45,6 +45,7 @@ module.exports = {
     description: 'Changes a Paytm subscription status to SUSPENDED (pause) or ACTIVE (resume).',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'subsId',
@@ -58,15 +59,20 @@ module.exports = {
         label: 'Target Status',
         type: 'string',
         required: true,
-        choices: [
-          { value: 'SUSPENDED', label: 'SUSPENDED (Pause)' },
-          { value: 'ACTIVE', label: 'ACTIVE (Resume)' },
-        ],
+        choices: ['SUSPENDED', 'ACTIVE'],
         default: 'SUSPENDED',
         helpText: 'The status to move the subscription into.',
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'subsId', label: 'Subscription ID' },
+      { key: 'requestedStatus', label: 'Requested Status' },
+      { key: 'resultCode', label: 'Result Code' },
+      { key: 'resultStatus', label: 'Result Status' },
+      { key: 'resultMsg', label: 'Result Message' },
+    ],
     sample: {
       id: 'SUBS12345',
       subsId: 'SUBS12345',

@@ -60,6 +60,7 @@ module.exports = {
       'Retrieves a paginated list of refunds from the merchant passbook for a given date range (max 30 days).',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'startDate',
@@ -100,6 +101,15 @@ module.exports = {
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'refId', label: 'Refund Reference ID' },
+      { key: 'txnId', label: 'Transaction ID' },
+      { key: 'orderId', label: 'Order ID' },
+      { key: 'refundAmount', label: 'Refund Amount' },
+      { key: 'status', label: 'Status' },
+      { key: 'txnDate', label: 'Refund Date', type: 'datetime' },
+    ],
     sample: {
       id: 'REF12345',
       refId: 'REF12345',

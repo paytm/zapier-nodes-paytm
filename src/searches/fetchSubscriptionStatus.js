@@ -54,6 +54,7 @@ module.exports = {
       'Checks the current status of a Paytm subscription by subscription ID, order ID, or link ID.',
   },
   operation: {
+    cleanInputData: false,
     inputFields: [
       {
         key: 'subsId',
@@ -85,6 +86,15 @@ module.exports = {
       },
     ],
     perform,
+    outputFields: [
+      { key: 'id', label: 'ID' },
+      { key: 'subsId', label: 'Subscription ID' },
+      { key: 'status', label: 'Status' },
+      { key: 'amount', label: 'Amount' },
+      { key: 'frequency', label: 'Frequency' },
+      { key: 'orderId', label: 'Order ID' },
+      { key: 'linkId', label: 'Link ID' },
+    ],
     sample: {
       id: 'SUBS12345',
       subsId: 'SUBS12345',
