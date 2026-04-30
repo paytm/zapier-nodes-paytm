@@ -1,0 +1,6 @@
+node_modules/
+.zapierapprc
+*.log
+.env
+.DS_Store
+coverage/
