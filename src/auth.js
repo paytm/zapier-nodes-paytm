@@ -64,7 +64,7 @@ const authentication = {
       required: true,
       type: 'string',
       helpText: 'Your Paytm Merchant ID (MID). Found in your Paytm dashboard.',
-      helpUrl: 'https://dashboard.paytm.com/next/apikeys',
+      helpUrl: 'https://dashboard.paytmpayments.com/next/apikeys',
     },
     {
       key: 'keySecret',
@@ -74,7 +74,7 @@ const authentication = {
       helpText:
         'Your Paytm Key Secret used for AES-128-CBC request signing. ' +
         'Must be exactly 16 bytes.',
-      helpUrl: 'https://dashboard.paytm.com/next/apikeys',
+      helpUrl: 'https://dashboard.paytmpayments.com/next/apikeys',
     },
     {
       key: 'environment',
@@ -85,7 +85,7 @@ const authentication = {
       default: 'production',
       helpText:
         'Use "Staging" for testing with a stage MID. Switch to "Production" for live transactions.',
-      helpUrl: 'https://dashboard.paytm.com/next/apikeys',
+      helpUrl: 'https://dashboard.paytmpayments.com/next/apikeys',
     },
   ],
   test: testAuth,
