@@ -1,0 +1,72 @@
+'use strict';
+
+const PaytmChecksum = require('../checksum');
+const { buildUrl, trimStr } = require('../utils');
+
+const perform = async (z, bundle) => {
+  const keySecret = bundle.authData.keySecret;
+  const mid = bundle.authData.merchantId;
+
+  const orderId = trimStr(bundle.inputData.orderId);
+  const refId = trimStr(bundle.inputData.refId);
+
+  if (!orderId) throw new z.errors.Error('Order ID is required.');
+  if (!refId) throw new z.errors.Error('Refund Reference ID is required.');
+
+  const body = { mid, orderId, refId };
+
+  const signature = await PaytmChecksum.generateSignature(JSON.stringify(body), keySecret);
+  const payload = {
+    body,
+    head: { tokenType: 'AES', signature, channelId: 'WEB' },
+  };
+
+  const url = buildUrl(bundle.authData.environment, '/v2/refund/status');
+
+  const response = await z.request({
+    method: 'POST',
+    url,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  const data = response.json;
+  const resultBody = data.body || data;
+  return [{ id: refId, ...resultBody }];
+};
+
+module.exports = {
+  key: 'checkRefundStatus',
+  noun: 'Refund Status',
+  display: {
+    label: 'Check Refund Status',
+    description: 'Checks the current status of a refund using the order ID and refund reference ID.',
+  },
+  operation: {
+    inputFields: [
+      {
+        key: 'orderId',
+        label: 'Order ID',
+        type: 'string',
+        required: true,
+        helpText: 'The original Paytm order ID against which the refund was initiated.',
+      },
+      {
+        key: 'refId',
+        label: 'Refund Reference ID',
+        type: 'string',
+        required: true,
+        helpText: 'The merchant-generated reference ID used when initiating the refund.',
+      },
+    ],
+    perform,
+    sample: {
+      id: 'REF12345',
+      refId: 'REF12345',
+      orderId: 'ORDER12345',
+      refundAmount: '50.00',
+      status: 'SUCCESS',
+      txnDate: '2024-01-15',
+    },
+  },
+};
