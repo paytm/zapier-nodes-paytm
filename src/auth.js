@@ -79,10 +79,7 @@ const authentication = {
       label: 'Environment',
       required: true,
       type: 'string',
-      choices: [
-        { value: 'production', label: 'Production' },
-        { value: 'staging', label: 'Staging' },
-      ],
+      choices: ['production', 'staging'],
       default: 'production',
       helpText:
         'Use "Staging" for testing with a stage MID. Switch to "Production" for live transactions.',

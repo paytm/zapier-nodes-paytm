@@ -119,10 +119,7 @@ module.exports = {
         label: 'Link Type',
         type: 'string',
         required: true,
-        choices: [
-          { value: 'FIXED', label: 'Fixed (preset amount)' },
-          { value: 'GENERIC', label: 'Generic (customer enters amount)' },
-        ],
+        choices: ['FIXED', 'GENERIC'],
         default: 'FIXED',
       },
       {

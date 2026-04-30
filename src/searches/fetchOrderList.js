@@ -118,12 +118,7 @@ module.exports = {
         key: 'orderSearchStatus',
         label: 'Order Status',
         type: 'string',
-        choices: [
-          { value: 'ALL', label: 'All' },
-          { value: 'SUCCESS', label: 'Success' },
-          { value: 'FAILURE', label: 'Failure' },
-          { value: 'PENDING', label: 'Pending' },
-        ],
+        choices: ['ALL', 'SUCCESS', 'FAILURE', 'PENDING'],
         default: 'SUCCESS',
         helpText: 'Filter orders by status.',
       },

@@ -58,10 +58,7 @@ module.exports = {
         label: 'Target Status',
         type: 'string',
         required: true,
-        choices: [
-          { value: 'SUSPENDED', label: 'SUSPENDED (Pause)' },
-          { value: 'ACTIVE', label: 'ACTIVE (Resume)' },
-        ],
+        choices: ['SUSPENDED', 'ACTIVE'],
         default: 'SUSPENDED',
         helpText: 'The status to move the subscription into.',
       },
