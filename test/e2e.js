@@ -75,11 +75,11 @@ const c = {
 };
 
 // ─── HTTP helper ──────────────────────────────────────────────────────────────
-async function post(path, payload) {
+async function post(path, payload, extraHeaders = {}) {
   const url = buildUrl(ENV, path);
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...extraHeaders },
     body: JSON.stringify(payload),
   });
   let data;
@@ -98,13 +98,11 @@ async function checksumPayload(body) {
 }
 
 // ─── Settlement envelope builder ─────────────────────────────────────────────
+// Sign the full outerBody, pass as HTTP header 'signature' (confirmed vs staging API)
 async function settlementPayload(businessBody) {
-  const innerBodyForSigning = { ...businessBody, merchantId: MID };
-  const signature = await PaytmChecksum.generateSignature(
-    JSON.stringify(innerBodyForSigning),
-    KEY_SECRET
-  );
-  return buildSettlementEnvelope(MID, businessBody, signature);
+  const outerEnvelope = buildSettlementEnvelope(MID, businessBody);
+  const signature = await PaytmChecksum.generateSignature(JSON.stringify(outerEnvelope), KEY_SECRET);
+  return { outerEnvelope, signature };
 }
 
 // ─── Test runner ──────────────────────────────────────────────────────────────
@@ -178,10 +176,9 @@ async function main() {
   });
 
   await run('orderDetail [settlement]', async () => {
-    const businessBody = { ipRoleId: MID, bizOrderId: TEST_BIZ_ORDER_ID };
-    const payload = await settlementPayload(businessBody);
+    const { outerEnvelope, signature } = await settlementPayload({ ipRoleId: MID, bizOrderId: TEST_BIZ_ORDER_ID });
     const path = `/merchant-adapter/internal/ORDER_DETAIL?mid=${MID}`;
-    return { ...await post(path, payload), note: `bizOrderId=${TEST_BIZ_ORDER_ID}` };
+    return { ...await post(path, outerEnvelope, { signature }), note: `bizOrderId=${TEST_BIZ_ORDER_ID}` };
   });
 
   console.log();
@@ -276,9 +273,9 @@ async function main() {
       pageNum: 1,
       pageSize: 5,
     };
-    const payload = await settlementPayload(businessBody);
+    const { outerEnvelope, signature } = await settlementPayload(businessBody);
     const path = `/merchant-adapter/internal/TxnListByDate?mid=${MID}`;
-    return post(path, payload);
+    return post(path, outerEnvelope, { signature });
   });
 
   await run('settlementBillList [settlement]', async () => {
@@ -292,9 +289,9 @@ async function main() {
       isFilterZeroAmount: true,
       isEventFlow: true,
     };
-    const payload = await settlementPayload(businessBody);
+    const { outerEnvelope, signature } = await settlementPayload(businessBody);
     const path = `/merchant-adapter/internal/BILL_LIST?mid=${MID}`;
-    return post(path, payload);
+    return post(path, outerEnvelope, { signature });
   });
 
   console.log();
