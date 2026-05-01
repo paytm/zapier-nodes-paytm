@@ -12,6 +12,7 @@ const operations = [
   { mod: require('../src/searches/pauseResumeSubscription'), key: 'pauseResumeSubscription', requiredInputs: ['subsId', 'status'] },
   { mod: require('../src/searches/cancelSubscription'), key: 'cancelSubscription', requiredInputs: ['subsId'] },
   { mod: require('../src/creates/initiateRefund'), key: 'initiateRefund', requiredInputs: ['orderId', 'txnId', 'refId', 'refundAmount'] },
+  { mod: require('../src/creates/customApiCall'), key: 'customApiCall', requiredInputs: ['endpoint', 'requestBody', 'signingScheme'] },
 ];
 
 describe.each(operations)('$key module structure', ({ mod, key, requiredInputs }) => {
