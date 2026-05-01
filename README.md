@@ -136,7 +136,7 @@ npx zapier push
 npm test
 ```
 
-103 tests across 4 suites: checksum known vectors, auth key validation, date formatters, URL builder, and module structure assertions for all 14 operations.
+110 tests across 4 suites: checksum known vectors, auth key validation, date formatters, URL builder, and module structure assertions for all 14 operations.
 
 ### Local validation
 
