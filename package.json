@@ -1,6 +1,6 @@
 {
   "name": "zapier-nodes-paytm",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Zapier integration for Paytm Payments — 13 actions/searches across Orders, Payment Links, Refunds, Settlements, and Subscriptions",
   "main": "index.js",
   "scripts": {
