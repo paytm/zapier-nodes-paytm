@@ -21,6 +21,7 @@ const createPaymentLink = require('./src/creates/createPaymentLink');
 const initiateRefund = require('./src/creates/initiateRefund');
 const pauseResumeSubscription = require('./src/searches/pauseResumeSubscription');
 const cancelSubscription = require('./src/searches/cancelSubscription');
+const customApiCall = require('./src/creates/customApiCall');
 
 const App = {
   version,
@@ -44,6 +45,7 @@ const App = {
     [initiateRefund.key]: initiateRefund,
     [pauseResumeSubscription.key]: pauseResumeSubscription,
     [cancelSubscription.key]: cancelSubscription,
+    [customApiCall.key]: customApiCall,
   },
 
   triggers: {},

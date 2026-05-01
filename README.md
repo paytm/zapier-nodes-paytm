@@ -19,7 +19,7 @@ Official Zapier CLI integration for Paytm Payments.
 
 ---
 
-## Supported Operations (13 total)
+## Supported Operations (14 total)
 
 | # | Zapier Key | Category | Type | Endpoint |
 |---|-----------|----------|------|----------|
@@ -36,6 +36,7 @@ Official Zapier CLI integration for Paytm Payments.
 | 11 | `fetchSubscriptionStatus` | Subscription | Search | `POST /subscription/subscription/checkStatus` |
 | 12 | `pauseResumeSubscription` | Subscription | Create | `POST /subscription/subscription/status/modify` |
 | 13 | `cancelSubscription` | Subscription | Create | `POST /subscription/subscription/cancel` |
+| 14 | `customApiCall` | Universal | Create | Any Paytm endpoint — path supplied at runtime |
 
 ---
 
@@ -52,6 +53,24 @@ Trigger: Schedule (daily 9 AM) → Search: `settlementBillList` → Action: Appe
 
 **Pause subscription on failed payment**
 Trigger: Webhook (payment failure event) → Create: `pauseResumeSubscription` (status=SUSPENDED) → Action: Send SMS to customer
+
+**Call a custom Paytm endpoint**
+Trigger: Schedule → Create: `customApiCall` (endpoint=/v2/refund/status, requestBody={"orderId":"{{orderId}}"}) → Filter on resultStatus
+
+---
+
+## Custom API Call
+
+The `customApiCall` operation is a generic signed passthrough for any Paytm API not covered by the predefined operations.
+
+| Field | Description |
+|-------|-------------|
+| **API Endpoint** | Paytm path e.g. `/v2/refund/status` — no base URL, it is set by your environment |
+| **Request Body (JSON)** | JSON object of fields to send e.g. `{"orderId":"ORDER123"}` — do not include `mid` |
+| **Auto-inject Merchant ID** | When true (default), your MID is added to the body before signing |
+| **Signing Scheme** | `standard` — AES-CBC body envelope (most APIs). `settlement` — signature as HTTP header (settlement/reporting APIs) |
+
+The response is flattened: all fields from `body` (or `payload.body`) are surfaced as output fields. A stable `id` is derived from the first recognised ID field in the response (`orderId`, `txnId`, `refId`, `linkId`, `subsId`, `requestId`, `id`) or falls back to the current timestamp.
 
 ---
 
@@ -96,6 +115,9 @@ Your MID and Key Secret don't match, or you've selected the wrong environment. S
 **"Refund Amount must be a positive number"**
 Pass a numeric value greater than 0. The value is formatted to two decimal places before being sent to Paytm.
 
+**Custom API Call returns unexpected structure**
+The operation flattens `payload.body` → `body` → root. If your endpoint uses a different envelope, map fields from the raw response using Zapier's built-in formatter. Use `signingScheme: settlement` only for settlement/reporting endpoints — standard endpoints with that scheme will fail signature verification.
+
 ---
 
 ## Setup (Developer)
@@ -114,7 +136,7 @@ npx zapier push
 npm test
 ```
 
-103 tests across 4 suites: checksum known vectors, auth key validation, date formatters, URL builder, and module structure assertions for all 13 operations.
+103 tests across 4 suites: checksum known vectors, auth key validation, date formatters, URL builder, and module structure assertions for all 14 operations.
 
 ### Local validation
 
@@ -143,9 +165,10 @@ src/
 │   ├── orderDetail.js
 │   ├── settlementTxnListByDate.js
 │   └── settlementBillList.js
-└── creates/            # Write operations (2 modules + 2 mutations in searches/)
+└── creates/            # Write operations (3 modules + 2 mutations in searches/)
     ├── createPaymentLink.js
-    └── initiateRefund.js
+    ├── initiateRefund.js
+    └── customApiCall.js
 test/
 ├── auth.test.js        # Checksum known vectors, key validation, utils
 ├── operations.test.js  # Structure assertions for all 11 remaining operations
