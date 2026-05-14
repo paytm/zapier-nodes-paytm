@@ -4,7 +4,7 @@ const createPaymentLink = require('../../src/creates/createPaymentLink');
 
 describe('createPaymentLink module structure', () => {
   test('has required Zapier keys', () => {
-    expect(createPaymentLink.key).toBe('createPaymentLink');
+    expect(createPaymentLink.key).toBe('create_payment_link');
     expect(createPaymentLink.noun).toBeDefined();
     expect(createPaymentLink.display.label).toBeDefined();
     expect(createPaymentLink.operation.inputFields).toBeInstanceOf(Array);

@@ -10,9 +10,9 @@ Official Zapier CLI integration for Paytm Payments.
 
 1. Open your Zap and click **Sign in** under the Paytm app.
 2. Enter your credentials from the [Paytm Dashboard → API Keys](https://dashboard.paytmpayments.com/next/apikeys):
-   - **Merchant ID** — your MID (e.g. `PAYTM12345678901`)
-   - **Key Secret** — your AES key, must be exactly 16 bytes
-   - **Environment** — choose `staging` for testing, `production` for live transactions
+  - **Merchant ID** — your MID (e.g. `PAYTM12345678901`)
+  - **Key Secret** — your AES key, must be exactly 16 bytes
+  - **Environment** — choose `staging` for testing, `production` for live transactions
 3. Click **Yes, Continue**. Zapier will run a test order-list call to verify the credentials.
 
 > **Staging vs Production:** Staging uses `securestage.paytmpayments.com`. Settlement operations (`Settlement: Transaction List`, `Settlement: Bill List`, `Order Detail`) will return empty results in staging as settlement data is only available in production.
@@ -21,29 +21,31 @@ Official Zapier CLI integration for Paytm Payments.
 
 ## Supported Operations (14 total)
 
-| # | Zapier Key | Category | Type | Endpoint |
-|---|-----------|----------|------|----------|
-| 1 | `fetchOrderList` | Order | Search | `POST /merchant-passbook/search/list/order/v2` |
-| 2 | `orderDetail` | Order | Search | `POST /merchant-adapter/internal/ORDER_DETAIL` |
-| 3 | `fetchPaymentLinks` | Payment Link | Search | `POST /link/fetch` |
-| 4 | `fetchTransactionsForLink` | Payment Link | Search | `POST /link/fetchTransaction` |
-| 5 | `createPaymentLink` | Payment Link | Create | `POST /link/create` |
-| 6 | `fetchRefundList` | Refund | Search | `POST /merchant-passbook/api/v1/refundList` |
-| 7 | `checkRefundStatus` | Refund | Search | `POST /v2/refund/status` |
-| 8 | `initiateRefund` | Refund | Create | `POST /refund/apply` |
-| 9 | `settlementTxnListByDate` | Settlement | Search | `POST /merchant-adapter/internal/TxnListByDate` |
-| 10 | `settlementBillList` | Settlement | Search | `POST /merchant-adapter/internal/BILL_LIST` |
-| 11 | `fetchSubscriptionStatus` | Subscription | Search | `POST /subscription/subscription/checkStatus` |
-| 12 | `pauseResumeSubscription` | Subscription | Create | `POST /subscription/subscription/status/modify` |
-| 13 | `cancelSubscription` | Subscription | Create | `POST /subscription/subscription/cancel` |
+
+| #   | Zapier Key                 | Category     | Type   | Endpoint                                        |
+| --- | -------------------------- | ------------ | ------ | ----------------------------------------------- |
+| 1   | `fetchOrderList`           | Order        | Search | `POST /merchant-passbook/search/list/order/v2`  |
+| 2   | `orderDetail`              | Order        | Search | `POST /merchant-adapter/internal/ORDER_DETAIL`  |
+| 3   | `fetchPaymentLinks`        | Payment Link | Search | `POST /link/fetch`                              |
+| 4   | `fetchTransactionsForLink` | Payment Link | Search | `POST /link/fetchTransaction`                   |
+| 5   | `create_payment_link`      | Payment Link | Create | `POST /link/create`                             |
+| 6   | `fetchRefundList`          | Refund       | Search | `POST /merchant-passbook/api/v1/refundList`     |
+| 7   | `checkRefundStatus`        | Refund       | Search | `POST /v2/refund/status`                        |
+| 8   | `create_refund`            | Refund       | Create | `POST /refund/apply`                            |
+| 9   | `settlementTxnListByDate`  | Settlement   | Search | `POST /merchant-adapter/internal/TxnListByDate` |
+| 10  | `settlementBillList`       | Settlement   | Search | `POST /merchant-adapter/internal/BILL_LIST`     |
+| 11  | `fetchSubscriptionStatus`  | Subscription | Search | `POST /subscription/subscription/checkStatus`   |
+| 12  | `pause_resume_subscription` | Subscription | Create | `POST /subscription/subscription/status/modify` |
+| 13  | `cancelSubscription`       | Subscription | Create | `POST /subscription/subscription/cancel`        |
 | 14 | `customApiCall` | Universal | Create | Any Paytm endpoint — path supplied at runtime |
+
 
 ---
 
 ## Example Zaps
 
 **Auto-refund failed orders**
-Trigger: Schedule (daily) → Search: `fetchOrderList` (status=FAILURE) → Create: `initiateRefund`
+Trigger: Schedule (daily) → Search: `fetchOrderList` (status=FAILURE) → Create: `create_refund`
 
 **Notify on new payment link payment**
 Trigger: Schedule (every 15 min) → Search: `fetchTransactionsForLink` → Filter: status=SUCCESS → Action: Send Slack/email notification
@@ -52,7 +54,7 @@ Trigger: Schedule (every 15 min) → Search: `fetchTransactionsForLink` → Filt
 Trigger: Schedule (daily 9 AM) → Search: `settlementBillList` → Action: Append rows to Google Sheets
 
 **Pause subscription on failed payment**
-Trigger: Webhook (payment failure event) → Create: `pauseResumeSubscription` (status=SUSPENDED) → Action: Send SMS to customer
+Trigger: Webhook (payment failure event) → Create: `pause_resume_subscription` (status=SUSPENDED) → Action: Send SMS to customer
 
 **Call a custom Paytm endpoint**
 Trigger: Schedule → Create: `customApiCall` (endpoint=/v2/refund/status, requestBody={"orderId":"{{orderId}}"}) → Filter on resultStatus
@@ -78,11 +80,13 @@ The response is flattened: all fields from `body` (or `payload.body`) are surfac
 
 Custom auth with three fields:
 
-| Field | Description |
-|-------|-------------|
-| **Merchant ID** | Your Paytm MID (from the dashboard) |
-| **Key Secret** | AES-128-CBC key — must be **exactly 16 bytes** |
-| **Environment** | `production` or `staging` |
+
+| Field           | Description                                    |
+| --------------- | ---------------------------------------------- |
+| **Merchant ID** | Your Paytm MID (from the dashboard)            |
+| **Key Secret**  | AES-128-CBC key — must be **exactly 16 bytes** |
+| **Environment** | `production` or `staging`                      |
+
 
 The app validates the key secret length at connection time and surfaces a clear error if the length is wrong.
 
@@ -192,4 +196,4 @@ test/
 
 See `docs/api-mapping.md` for full request/response shapes for each operation.
 
-Paytm API docs: https://www.paytmpayments.com/docs/getting-started
+Paytm API docs: [https://www.paytmpayments.com/docs/getting-started](https://www.paytmpayments.com/docs/getting-started)

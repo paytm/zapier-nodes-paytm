@@ -67,7 +67,7 @@ Settlement envelope (see Settlement section below). Body params:
 |-----------|---------------|------|----------|------|
 | `fetchPaymentLinks` | `fetchPaymentLinks` | POST | `/link/fetch` | Checksum [C] |
 | `fetchTransactionsForLink` | `fetchTransactionsForLink` | POST | `/link/fetchTransaction` | Checksum [C] |
-| `createPaymentLink` | `createPaymentLink` | POST | `/link/create` | Checksum [C] |
+| `create_payment_link` | `createPaymentLink` | POST | `/link/create` | Checksum [C] |
 
 #### fetchPaymentLinks — Request Body
 ```json
@@ -144,7 +144,7 @@ Settlement envelope (see Settlement section below). Body params:
 |-----------|---------------|------|----------|------|
 | `fetchRefundList` | `fetchRefundList` | POST | `/merchant-passbook/api/v1/refundList` | Checksum [C] |
 | `checkRefundStatus` | `checkRefundStatus` | POST | `/v2/refund/status` | Checksum [C] |
-| `initiateRefund` | `initiateRefund` | POST | `/refund/apply` | Checksum [C] |
+| `create_refund` | `initiateRefund` | POST | `/refund/apply` | Checksum [C] |
 
 #### fetchRefundList — Request Body
 ```json
@@ -247,7 +247,7 @@ URL pattern: `POST /merchant-adapter/internal/{FUNCTION_NAME}?mid={mid}`
 | Zapier Key | n8n Operation | HTTP | Endpoint | Auth |
 |-----------|---------------|------|----------|------|
 | `fetchSubscriptionStatus` | `fetchSubscriptionStatus` | POST | `/subscription/subscription/checkStatus` | Checksum [C] |
-| `pauseResumeSubscription` | `pauseResumeSubscription` | POST | `/subscription/subscription/status/modify` | Checksum [C] |
+| `pause_resume_subscription` | `pauseResumeSubscription` | POST | `/subscription/subscription/status/modify` | Checksum [C] |
 | `cancelSubscription` | `cancelSubscription` | POST | `/subscription/subscription/cancel` | Checksum [C] |
 
 #### fetchSubscriptionStatus — Request Body

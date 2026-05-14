@@ -33,7 +33,7 @@ const perform = async (z, bundle) => {
 };
 
 module.exports = {
-  key: 'cancelSubscription',
+  key: 'cancel_subscription',
   noun: 'Subscription',
   display: {
     label: 'Cancel Subscription',
@@ -47,7 +47,7 @@ module.exports = {
         label: 'Subscription ID',
         type: 'string',
         required: true,
-        helpText: 'The Paytm subscription ID to cancel.',
+        helpText: 'Subscription ID to cancel',
       },
     ],
     perform,

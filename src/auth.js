@@ -63,7 +63,9 @@ const authentication = {
       label: 'Merchant ID',
       required: true,
       type: 'string',
-      helpText: 'Your Paytm Merchant ID (MID). Found in your Paytm dashboard.',
+      helpText:
+        'Your Paytm Merchant ID (MID). ' +
+        '[Get your Paytm MID and API Key](https://www.paytmpayments.com/docs/getting-started)',
       helpUrl: 'https://dashboard.paytmpayments.com/next/apikeys',
     },
     {
@@ -72,8 +74,8 @@ const authentication = {
       required: true,
       type: 'password',
       helpText:
-        'Your Paytm Key Secret used for AES-128-CBC request signing. ' +
-        'Must be exactly 16 bytes.',
+        'API Key available on merchant dashboard. ' +
+        '[Get your Paytm MID and API Key](https://www.paytmpayments.com/docs/getting-started)',
       helpUrl: 'https://dashboard.paytmpayments.com/next/apikeys',
     },
     {
@@ -89,7 +91,7 @@ const authentication = {
     },
   ],
   test: testAuth,
-  connectionLabel: '{{bundle.authData.merchantId}} ({{bundle.authData.environment}})',
+  connectionLabel: '{{bundle.authData.merchantId}}',
 };
 
 module.exports = authentication;
