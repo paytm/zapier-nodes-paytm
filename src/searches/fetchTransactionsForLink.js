@@ -69,7 +69,10 @@ module.exports = {
         label: 'Link ID',
         type: 'string',
         required: true,
-        helpText: 'Fetch transactions against a link ID.',
+        dynamic: 'payment_links_dropdown.linkId.linkName',
+        helpText:
+          'Paytm payment link ID. Open the dropdown to load links (same **POST /link/fetch** data as **Fetch All Payment Links**, ' +
+          'via a hidden trigger—only `mid` applies unless you add filters elsewhere), or paste a link ID.',
       },
       {
         key: 'searchStartDate',

@@ -23,6 +23,10 @@ const pauseResumeSubscription = require('./src/searches/pauseResumeSubscription'
 const cancelSubscription = require('./src/searches/cancelSubscription');
 const customApiCall = require('./src/creates/customApiCall');
 
+// Triggers (hidden polling sources for dynamic dropdowns)
+const ordersDropdown = require('./src/triggers/ordersDropdown');
+const paymentLinksDropdown = require('./src/triggers/paymentLinksDropdown');
+
 const App = {
   version,
   platformVersion,
@@ -48,7 +52,10 @@ const App = {
     [customApiCall.key]: customApiCall,
   },
 
-  triggers: {},
+  triggers: {
+    [ordersDropdown.key]: ordersDropdown,
+    [paymentLinksDropdown.key]: paymentLinksDropdown,
+  },
 };
 
 module.exports = App;

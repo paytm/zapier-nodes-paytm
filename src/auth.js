@@ -86,8 +86,10 @@ const authentication = {
       choices: ['production', 'staging'],
       default: 'production',
       helpText:
-        'Use "Staging" for testing with a stage MID. Switch to "Production" for live transactions.',
-      helpUrl: 'https://dashboard.paytmpayments.com/next/apikeys',
+        'Use **staging** for test MIDs and Paytm stage hosts (`securestage.paytmpayments.com`). ' +
+        'Use **production** for live MIDs and `secure.paytmpayments.com`. ' +
+        '[Paytm getting started — credentials and environments](https://www.paytmpayments.com/docs/getting-started)',
+      helpUrl: 'https://www.paytmpayments.com/docs/getting-started',
     },
   ],
   test: testAuth,

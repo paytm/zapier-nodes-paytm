@@ -88,13 +88,6 @@ module.exports = {
         default: '20',
         required: false,
       },
-      {
-        key: 'settlementOrderId',
-        label: 'Settlement Order ID',
-        type: 'string',
-        required: false,
-        helpText: 'Optional: filter by a specific settlement order ID.',
-      },
     ],
     perform,
     outputFields: [

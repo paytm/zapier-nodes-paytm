@@ -101,13 +101,6 @@ module.exports = {
         helpText: 'Maximum 50 records per page.',
       },
       {
-        key: 'settlementBillId',
-        label: 'Settlement Bill ID (Payout ID)',
-        type: 'string',
-        required: false,
-        helpText: 'Optional: filter by a specific payout ID.',
-      },
-      {
         key: 'utrNo',
         label: 'UTR Number',
         type: 'string',

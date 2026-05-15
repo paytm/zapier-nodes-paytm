@@ -50,7 +50,9 @@ module.exports = {
         label: 'Order ID',
         type: 'string',
         required: true,
-        helpText: 'The original Paytm order ID against which the refund was initiated.',
+        dynamic: 'orders_dropdown.orderId.merchantOrderId',
+        helpText:
+          'Original **Paytm order ID** (`orderId`) for the refund. Load from dropdown (labels show **Merchant Order ID**; same Passbook list as **Fetch All Orders**, last ~30 days / success by default) or paste.',
       },
       {
         key: 'refId',

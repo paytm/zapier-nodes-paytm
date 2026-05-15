@@ -89,14 +89,19 @@ module.exports = {
         label: 'Order ID',
         type: 'string',
         required: true,
-        helpText: 'Order ID for initiating refund.',
+        dynamic: 'orders_dropdown.orderId.merchantOrderId',
+        helpText:
+          'Paytm **order ID** (`orderId`). Load from dropdown (recent **successful** orders, last ~30 days, same Passbook API as **Fetch All Orders**) or paste. ' +
+          'For a narrower range or filters, run **Fetch All Orders** first and map this field.',
       },
       {
         key: 'txnId',
         label: 'Transaction ID',
         type: 'string',
         required: true,
-        helpText: 'Paytm transaction ID to initiate refund.',
+        dynamic: 'orders_dropdown.txnId.merchantOrderId',
+        helpText:
+          'Paytm **transaction ID** (`txnId`) for this order. Dropdown uses the **Fetch All Orders** payload (Passbook rows); if `txnId` is missing from a row, paste the ID from the Paytm dashboard or a prior webhook step.',
       },
       {
         key: 'refId',
@@ -155,13 +160,6 @@ module.exports = {
         type: 'string',
         required: false,
         helpText: 'Email ID of agent initiating the refund.',
-      },
-      {
-        key: 'agentEmployeeId',
-        label: 'Agent ID',
-        type: 'string',
-        required: false,
-        helpText: 'Employee ID of agent initiating the refund.',
       },
     ],
     perform,
