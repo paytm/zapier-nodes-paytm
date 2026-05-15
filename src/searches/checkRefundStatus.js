@@ -1,7 +1,7 @@
 'use strict';
 
 const PaytmChecksum = require('../checksum');
-const { buildUrl, trimStr } = require('../utils');
+const { buildUrl, trimStr, deepConvertDates } = require('../utils');
 
 const perform = async (z, bundle) => {
   const keySecret = bundle.authData.keySecret;
@@ -32,15 +32,15 @@ const perform = async (z, bundle) => {
 
   const data = response.json;
   const resultBody = data.body || data;
-  return [{ id: refId, ...resultBody }];
+  return deepConvertDates([{ id: refId, ...resultBody }]);
 };
 
 module.exports = {
-  key: 'checkRefundStatus',
-  noun: 'Refund Status',
+  key: 'fetch_refund_details',
+  noun: 'Refund',
   display: {
-    label: 'Check Refund Status',
-    description: 'Checks the current status of a refund using the order ID and refund reference ID.',
+    label: 'Fetch Refund Details',
+    description: 'Fetch refund details for an order.',
   },
   operation: {
     cleanInputData: false,

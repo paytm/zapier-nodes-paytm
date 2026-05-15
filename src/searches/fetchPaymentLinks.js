@@ -1,7 +1,7 @@
 'use strict';
 
 const PaytmChecksum = require('../checksum');
-const { buildUrl, formatDateToDdMmYyyy, trimStr } = require('../utils');
+const { buildUrl, formatDateToDdMmYyyy, trimStr, deepConvertDates } = require('../utils');
 
 const perform = async (z, bundle) => {
   const keySecret = bundle.authData.keySecret;
@@ -33,21 +33,25 @@ const perform = async (z, bundle) => {
   const resellerName = trimStr(bundle.inputData.resellerName);
   if (resellerName) body.resellerName = resellerName;
 
-  // linkTypeMultiple is a comma-separated string of FIXED and/or GENERIC
-  const linkTypesRaw = trimStr(bundle.inputData.linkTypeMultiple);
-  if (linkTypesRaw) {
-    body.linkTypeMultiple = linkTypesRaw.split(',').map((s) => s.trim()).filter(Boolean);
+  // linkTypeMultiple: Zapier multi-select sends an array; legacy comma-separated string supported for back-compat
+  const linkTypeInput = bundle.inputData.linkTypeMultiple;
+  let linkTypes = [];
+  if (Array.isArray(linkTypeInput)) {
+    linkTypes = linkTypeInput.map((s) => String(s).trim()).filter(Boolean);
+  } else if (typeof linkTypeInput === 'string' && linkTypeInput.trim() !== '') {
+    linkTypes = linkTypeInput.split(',').map((s) => s.trim()).filter(Boolean);
   }
+  if (linkTypes.length > 0) body.linkTypeMultiple = linkTypes;
 
-  // Date range filter (DD/MM/YYYY format required by Paytm /link/fetch)
   const fromDateRaw = bundle.inputData.filterFromDate;
   const toDateRaw = bundle.inputData.filterToDate;
   const isActiveRaw = bundle.inputData.filterIsActive;
   const searchFilter = {};
   if (fromDateRaw) searchFilter.fromDate = formatDateToDdMmYyyy(fromDateRaw) || trimStr(fromDateRaw);
   if (toDateRaw) searchFilter.toDate = formatDateToDdMmYyyy(toDateRaw) || trimStr(toDateRaw);
-  if (isActiveRaw !== undefined && isActiveRaw !== '') {
-    searchFilter.isActive = isActiveRaw === true || isActiveRaw === 'true';
+  // "Only active links" toggle: when ON, restrict to active; when OFF, no filter (don't send isActive=false to Paytm)
+  if (isActiveRaw === true || isActiveRaw === 'true') {
+    searchFilter.isActive = true;
   }
   if (Object.keys(searchFilter).length > 0) body.searchFilterRequestBody = searchFilter;
 
@@ -71,101 +75,115 @@ const perform = async (z, bundle) => {
   const links = resultBody.links || resultBody.linkList || resultBody.data;
 
   if (Array.isArray(links)) {
-    return links.map((l, i) => ({ id: l.linkId || l.merchantRequestId || i, ...l }));
+    const items = links.map((l, i) => ({ id: l.linkId || l.merchantRequestId || i, ...l }));
+    return deepConvertDates(items);
   }
-  return [{ id: 'result', ...resultBody }];
+  return deepConvertDates([{ id: 'result', ...resultBody }]);
 };
 
 module.exports = {
-  key: 'fetchPaymentLinks',
+  key: 'fetch_all_payment_links',
   noun: 'Payment Link',
   display: {
-    label: 'Fetch Payment Links',
-    description: 'Retrieves a list of payment links, optionally filtered by date, status, or customer details.',
+    label: 'Fetch All Payment Links',
+    description: 'Fetch all payment links within a date range.',
   },
   operation: {
     cleanInputData: false,
     inputFields: [
       {
-        key: 'merchantRequestId',
-        label: 'Merchant Request ID',
-        type: 'string',
-        required: false,
-        helpText: 'Filter by a specific merchant request ID.',
-      },
-      {
         key: 'linkId',
         label: 'Link ID',
         type: 'string',
         required: false,
-        helpText: 'Filter by a specific Paytm payment link ID.',
+        helpText: 'Unique identifier for each payment link.',
       },
       {
         key: 'linkTypeMultiple',
-        label: 'Link Type',
+        label: 'Link type',
         type: 'string',
         required: false,
-        helpText:
-          'Comma-separated link types to filter: FIXED, GENERIC, or both (e.g. "FIXED,GENERIC").',
+        list: true,
+        choices: { FIXED: 'Fixed', GENERIC: 'Generic' },
+        helpText: 'Link type to fetch.',
       },
       {
         key: 'paymentStatus',
-        label: 'Payment Status',
+        label: 'Payment status',
         type: 'string',
-        choices: ['EXPIRED', 'INIT', 'PAID', 'PENDING'],
         required: false,
-        helpText: 'Filter links by payment status.',
+        choices: {
+          EXPIRED: 'Expired',
+          INIT: 'Initiated',
+          PAID: 'Paid',
+          PENDING: 'Pending',
+        },
+        default: 'PENDING',
+        helpText: 'Fetch links based on payment status.',
       },
       {
-        key: 'filterFromDate',
-        label: 'Filter: Start Date',
-        type: 'datetime',
+        key: 'merchantRequestId',
+        label: 'Merchant request ID',
+        type: 'string',
         required: false,
-        helpText: 'Start date for the search filter (converts to DD/MM/YYYY IST).',
-      },
-      {
-        key: 'filterToDate',
-        label: 'Filter: End Date',
-        type: 'datetime',
-        required: false,
-        helpText: 'End date for the search filter (converts to DD/MM/YYYY IST).',
+        helpText: 'Unique ID generated by merchant.',
       },
       {
         key: 'filterIsActive',
-        label: 'Filter: Active Only',
+        label: 'Only active links',
         type: 'boolean',
         required: false,
-        helpText: 'When true, returns only active links.',
+        default: 'false',
+        helpText: 'Fetch only active links.',
+      },
+      {
+        key: 'filterFromDate',
+        label: 'Start date',
+        type: 'datetime',
+        required: false,
+        helpText: 'Start date to fetch payment links.',
+      },
+      {
+        key: 'filterToDate',
+        label: 'End date',
+        type: 'datetime',
+        required: false,
+        helpText: 'End date to fetch payment links.',
       },
       {
         key: 'customerName',
-        label: 'Customer Name',
+        label: 'Customer name',
         type: 'string',
         required: false,
-      },
-      {
-        key: 'customerPhone',
-        label: 'Customer Phone',
-        type: 'string',
-        required: false,
+        helpText: "Fetch links using customer's name.",
       },
       {
         key: 'customerEmail',
-        label: 'Customer Email',
+        label: 'Customer email ID',
         type: 'string',
         required: false,
+        helpText: "Fetch links using customer's email ID.",
+      },
+      {
+        key: 'customerPhone',
+        label: 'Customer mobile',
+        type: 'string',
+        required: false,
+        helpText: "Fetch links using customer's mobile number.",
       },
       {
         key: 'resellerId',
         label: 'Reseller ID',
         type: 'string',
         required: false,
+        helpText: 'Fetch links based on reseller ID.',
       },
       {
         key: 'resellerName',
-        label: 'Reseller Name',
+        label: 'Reseller name',
         type: 'string',
         required: false,
+        helpText: 'Fetch links based on reseller name.',
       },
     ],
     perform,

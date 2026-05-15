@@ -1,7 +1,7 @@
 'use strict';
 
 const PaytmChecksum = require('../checksum');
-const { buildUrl, formatDateToDdMmYyyyHhMmSs, trimStr } = require('../utils');
+const { buildUrl, formatDateToDdMmYyyyHhMmSs, trimStr, deepConvertDates } = require('../utils');
 
 const perform = async (z, bundle) => {
   const keySecret = bundle.authData.keySecret;
@@ -48,17 +48,18 @@ const perform = async (z, bundle) => {
   const txns = resultBody.txnList || resultBody.transactions || resultBody.data;
 
   if (Array.isArray(txns)) {
-    return txns.map((t, i) => ({ id: t.txnId || t.orderId || i, ...t }));
+    const items = txns.map((t, i) => ({ id: t.txnId || t.orderId || i, ...t }));
+    return deepConvertDates(items);
   }
-  return [{ id: 'result', ...resultBody }];
+  return deepConvertDates([{ id: 'result', ...resultBody }]);
 };
 
 module.exports = {
-  key: 'fetchTransactionsForLink',
-  noun: 'Link Transaction',
+  key: 'fetch_payment_link_details',
+  noun: 'Payment Link',
   display: {
-    label: 'Fetch Transactions for Payment Link',
-    description: 'Retrieves all transactions made against a specific Paytm payment link.',
+    label: 'Fetch Payment Link Details',
+    description: 'Fetch details for a payment link.',
   },
   operation: {
     cleanInputData: false,
@@ -68,28 +69,29 @@ module.exports = {
         label: 'Link ID',
         type: 'string',
         required: true,
-        helpText: 'The Paytm payment link ID to fetch transactions for.',
+        helpText: 'Fetch transactions against a link ID.',
       },
       {
         key: 'searchStartDate',
-        label: 'Start Date',
+        label: 'Start date',
         type: 'datetime',
         required: false,
-        helpText: 'Optional start date filter (converts to DD/MM/YYYY HH:MM:SS IST).',
+        helpText: 'Start date to fetch transactions.',
       },
       {
         key: 'searchEndDate',
-        label: 'End Date',
+        label: 'End date',
         type: 'datetime',
         required: false,
-        helpText: 'Optional end date filter (converts to DD/MM/YYYY HH:MM:SS IST).',
+        helpText: 'End date to fetch transactions.',
       },
       {
         key: 'fetchAllTxns',
-        label: 'Fetch All Transactions',
+        label: 'Fetch all transactions',
         type: 'boolean',
         required: false,
-        helpText: 'When true, fetches all transactions regardless of date filter.',
+        default: 'false',
+        helpText: 'Fetch all transactions, including failed attempts for this payment link.',
       },
     ],
     perform,

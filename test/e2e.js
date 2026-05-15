@@ -160,7 +160,7 @@ async function main() {
 
   console.log(c.bold('── ORDER ──────────────────────────────────────────'));
 
-  await run('fetchOrderList', async () => {
+  await run('fetch_all_orders', async () => {
     const body = {
       mid: MID,
       fromDate: FROM_DATE,
@@ -175,22 +175,22 @@ async function main() {
     return post('/merchant-passbook/search/list/order/v2', payload);
   });
 
-  await run('orderDetail [settlement]', async () => {
+  await run('fetch_order_details [settlement]', async () => {
     const { outerEnvelope, signature } = await settlementPayload({ ipRoleId: MID, bizOrderId: TEST_BIZ_ORDER_ID });
-    const path = `/merchant-adapter/internal/ORDER_DETAIL?mid=${MID}`;
+    const path = `/merchant-adapter/internal/orderDetail?mid=${MID}`;
     return { ...await post(path, outerEnvelope, { signature }), note: `bizOrderId=${TEST_BIZ_ORDER_ID}` };
   });
 
   console.log();
   console.log(c.bold('── PAYMENT LINK ───────────────────────────────────'));
 
-  await run('fetchPaymentLinks', async () => {
+  await run('fetch_all_payment_links', async () => {
     const body = { mid: MID };
     const payload = await checksumPayload(body);
     return post('/link/fetch', payload);
   });
 
-  await run('fetchTransactionsForLink', async () => {
+  await run('fetch_payment_link_details', async () => {
     const body = { mid: MID, linkId: TEST_LINK_ID };
     const payload = await checksumPayload(body);
     return { ...await post('/link/fetchTransaction', payload), note: `linkId=${TEST_LINK_ID}` };
@@ -274,7 +274,7 @@ async function main() {
       pageSize: 5,
     };
     const { outerEnvelope, signature } = await settlementPayload(businessBody);
-    const path = `/merchant-adapter/internal/TxnListByDate?mid=${MID}`;
+    const path = `/merchant-adapter/internal/settlementTxnListByDate?mid=${MID}`;
     return post(path, outerEnvelope, { signature });
   });
 
@@ -290,14 +290,14 @@ async function main() {
       isEventFlow: true,
     };
     const { outerEnvelope, signature } = await settlementPayload(businessBody);
-    const path = `/merchant-adapter/internal/BILL_LIST?mid=${MID}`;
+    const path = `/merchant-adapter/internal/settlementBillList?mid=${MID}`;
     return post(path, outerEnvelope, { signature });
   });
 
   console.log();
   console.log(c.bold('── SUBSCRIPTION ───────────────────────────────────'));
 
-  await run('fetchSubscriptionStatus', async () => {
+  await run('fetch_subscription_details', async () => {
     const body = { mid: MID, subsId: TEST_SUBS_ID };
     const payload = await checksumPayload(body);
     return {

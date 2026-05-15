@@ -29,10 +29,10 @@ Zapier `custom` auth. Three fields:
 
 | Zapier Key | n8n Operation | HTTP | Endpoint | Auth |
 |-----------|---------------|------|----------|------|
-| `fetchOrderList` | `fetchOrderList` | POST | `/merchant-passbook/search/list/order/v2` | Checksum [C] |
-| `orderDetail` | `orderDetail` | POST | `/merchant-adapter/internal/ORDER_DETAIL?mid={mid}` | Settlement [S] |
+| `fetch_all_orders` | `fetchOrderList` | POST | `/merchant-passbook/search/list/order/v2` | Checksum [C] |
+| `fetch_order_details` | `orderDetail` | POST | `/merchant-adapter/internal/orderDetail?mid={mid}` | Settlement [S] |
 
-#### fetchOrderList — Request Body
+#### fetch_all_orders — Request Body
 ```json
 {
   "body": {
@@ -52,7 +52,7 @@ Zapier `custom` auth. Three fields:
 ```
 > Note: When user selects "ALL" for orderSearchStatus, the API receives `SUCCESS|FAILURE|PENDING` (Paytm does not accept literal "ALL").
 
-#### orderDetail — Request Envelope
+#### fetch_order_details — Request Envelope
 Settlement envelope (see Settlement section below). Body params:
 - `ipRoleId` = merchantId
 - `bizOrderId` (required)
@@ -65,11 +65,11 @@ Settlement envelope (see Settlement section below). Body params:
 
 | Zapier Key | n8n Operation | HTTP | Endpoint | Auth |
 |-----------|---------------|------|----------|------|
-| `fetchPaymentLinks` | `fetchPaymentLinks` | POST | `/link/fetch` | Checksum [C] |
-| `fetchTransactionsForLink` | `fetchTransactionsForLink` | POST | `/link/fetchTransaction` | Checksum [C] |
+| `fetch_all_payment_links` | `fetchPaymentLinks` | POST | `/link/fetch` | Checksum [C] |
+| `fetch_payment_link_details` | `fetchTransactionsForLink` | POST | `/link/fetchTransaction` | Checksum [C] |
 | `create_payment_link` | `createPaymentLink` | POST | `/link/create` | Checksum [C] |
 
-#### fetchPaymentLinks — Request Body
+#### fetch_all_payment_links — Request Body
 ```json
 {
   "body": {
@@ -93,7 +93,7 @@ Settlement envelope (see Settlement section below). Body params:
 }
 ```
 
-#### fetchTransactionsForLink — Request Body
+#### fetch_payment_link_details — Request Body
 ```json
 {
   "body": {
@@ -215,9 +215,9 @@ URL pattern: `POST /merchant-adapter/internal/{FUNCTION_NAME}?mid={mid}`
 
 | Zapier Key | n8n Operation | Function Name |
 |-----------|---------------|---------------|
-| `settlementTxnListByDate` | `settlementTxnListByDate` | `TxnListByDate` |
-| `settlementBillList` | `settlementBillList` | `BILL_LIST` |
-| `orderDetail` | `orderDetail` | `ORDER_DETAIL` |
+| `fetch_all_settlements` | `settlementTxnListByDate` | `settlementTxnListByDate` |
+| `fetch_settlement_details` | `settlementBillList` | `settlementBillList` |
+| `fetch_order_details` | `orderDetail` | `orderDetail` |
 
 #### settlementTxnListByDate — Inner Body Fields
 - `ipRoleId` = merchantId
@@ -246,11 +246,11 @@ URL pattern: `POST /merchant-adapter/internal/{FUNCTION_NAME}?mid={mid}`
 
 | Zapier Key | n8n Operation | HTTP | Endpoint | Auth |
 |-----------|---------------|------|----------|------|
-| `fetchSubscriptionStatus` | `fetchSubscriptionStatus` | POST | `/subscription/subscription/checkStatus` | Checksum [C] |
+| `fetch_subscription_details` | `fetchSubscriptionStatus` | POST | `/subscription/subscription/checkStatus` | Checksum [C] |
 | `pause_resume_subscription` | `pauseResumeSubscription` | POST | `/subscription/subscription/status/modify` | Checksum [C] |
 | `cancelSubscription` | `cancelSubscription` | POST | `/subscription/subscription/cancel` | Checksum [C] |
 
-#### fetchSubscriptionStatus — Request Body
+#### fetch_subscription_details — Request Body
 ```json
 {
   "body": {

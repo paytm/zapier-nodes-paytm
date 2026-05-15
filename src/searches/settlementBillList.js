@@ -1,9 +1,9 @@
 'use strict';
 
 const PaytmChecksum = require('../checksum');
-const { buildUrl, formatDateToIst, buildSettlementEnvelope, trimStr } = require('../utils');
+const { buildUrl, formatDateToIst, buildSettlementEnvelope, trimStr, deepConvertDates } = require('../utils');
 
-const SETTLEMENT_PATH = (mid) => `/merchant-adapter/internal/BILL_LIST?mid=${mid}`;
+const SETTLEMENT_PATH = (mid) => `/merchant-adapter/internal/settlementBillList?mid=${mid}`;
 
 const perform = async (z, bundle) => {
   const keySecret = bundle.authData.keySecret;
@@ -51,21 +51,22 @@ const perform = async (z, bundle) => {
   const bills = resultBody.billList || resultBody.settlements || resultBody.data;
 
   if (Array.isArray(bills)) {
-    return bills.map((b, i) => ({
+    const items = bills.map((b, i) => ({
       id: b.settlementBillId || b.utrNo || i,
       ...b,
     }));
+    return deepConvertDates(items);
   }
-  return [{ id: 'result', ...resultBody }];
+  return deepConvertDates([{ id: 'result', ...resultBody }]);
 };
 
 module.exports = {
-  key: 'settlementBillList',
-  noun: 'Settlement Bill',
+  key: 'fetch_settlement_details',
+  noun: 'Settlement',
   display: {
-    label: 'Settlement: Bill List',
+    label: 'Fetch Settlement Details',
     description:
-      'Retrieves a list of settlement bills (payouts) for a merchant within a specified date range.',
+      'Fetch transaction level details for a merchant settlement.',
   },
   operation: {
     cleanInputData: false,

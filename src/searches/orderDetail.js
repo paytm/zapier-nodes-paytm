@@ -1,9 +1,9 @@
 'use strict';
 
 const PaytmChecksum = require('../checksum');
-const { buildUrl, buildSettlementEnvelope, trimStr } = require('../utils');
+const { buildUrl, buildSettlementEnvelope, trimStr, deepConvertDates } = require('../utils');
 
-const SETTLEMENT_PATH = (mid) => `/merchant-adapter/internal/ORDER_DETAIL?mid=${mid}`;
+const SETTLEMENT_PATH = (mid) => `/merchant-adapter/internal/orderDetail?mid=${mid}`;
 
 const perform = async (z, bundle) => {
   const keySecret = bundle.authData.keySecret;
@@ -40,16 +40,15 @@ const perform = async (z, bundle) => {
 
   const data = response.json;
   const resultBody = (data.payload && data.payload.body) || data.body || data;
-  return [{ id: bizOrderId, bizOrderId, ...resultBody }];
+  return deepConvertDates([{ id: bizOrderId, bizOrderId, ...resultBody }]);
 };
 
 module.exports = {
-  key: 'orderDetail',
-  noun: 'Order Detail',
+  key: 'fetch_order_details',
+  noun: 'Order',
   display: {
-    label: 'Order Detail',
-    description:
-      'Retrieves detailed information about a specific order including settlement data.',
+    label: 'Fetch Order Details',
+    description: 'Fetch payment and settlement details of an order.',
   },
   operation: {
     cleanInputData: false,
@@ -59,21 +58,22 @@ module.exports = {
         label: 'Transaction ID',
         type: 'string',
         required: true,
-        helpText: 'The Paytm transaction/order ID to look up.',
       },
       {
         key: 'isSettlementInfo',
-        label: 'Include Settlement Info',
+        label: 'Settlement details',
         type: 'boolean',
         required: false,
-        helpText: 'When true, includes settlement details in the response.',
+        default: 'false',
+        helpText: 'Include settlement details in response.',
       },
       {
         key: 'excludePaymentsData',
-        label: 'Exclude Payments Data',
+        label: 'Exclude payments data',
         type: 'boolean',
         required: false,
-        helpText: 'When true, excludes raw payment instrument data from the response.',
+        default: 'false',
+        helpText: 'Exclude payment details in response.',
       },
     ],
     perform,

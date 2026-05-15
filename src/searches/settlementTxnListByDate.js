@@ -1,9 +1,9 @@
 'use strict';
 
 const PaytmChecksum = require('../checksum');
-const { buildUrl, formatDateToIst, buildSettlementEnvelope, trimStr } = require('../utils');
+const { buildUrl, formatDateToIst, buildSettlementEnvelope, trimStr, deepConvertDates } = require('../utils');
 
-const SETTLEMENT_PATH = (mid) => `/merchant-adapter/internal/TxnListByDate?mid=${mid}`;
+const SETTLEMENT_PATH = (mid) => `/merchant-adapter/internal/settlementTxnListByDate?mid=${mid}`;
 
 const perform = async (z, bundle) => {
   const keySecret = bundle.authData.keySecret;
@@ -43,18 +43,19 @@ const perform = async (z, bundle) => {
   const txns = resultBody.txnList || resultBody.transactions || resultBody.data;
 
   if (Array.isArray(txns)) {
-    return txns.map((t, i) => ({ id: t.txnId || t.orderId || i, ...t }));
+    const items = txns.map((t, i) => ({ id: t.txnId || t.orderId || i, ...t }));
+    return deepConvertDates(items);
   }
-  return [{ id: 'result', ...resultBody }];
+  return deepConvertDates([{ id: 'result', ...resultBody }]);
 };
 
 module.exports = {
-  key: 'settlementTxnListByDate',
-  noun: 'Settlement Transaction',
+  key: 'fetch_all_settlements',
+  noun: 'Settlement',
   display: {
-    label: 'Settlement: Transaction List by Date',
+    label: 'Fetch All Settlements',
     description:
-      'Retrieves settlement transactions for a merchant within a specified date range.',
+      'Fetch all settlements within a date range.',
   },
   operation: {
     cleanInputData: false,

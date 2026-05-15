@@ -15,7 +15,7 @@ Official Zapier CLI integration for Paytm Payments.
   - **Environment** — choose `staging` for testing, `production` for live transactions
 3. Click **Yes, Continue**. Zapier will run a test order-list call to verify the credentials.
 
-> **Staging vs Production:** Staging uses `securestage.paytmpayments.com`. Settlement operations (`Settlement: Transaction List`, `Settlement: Bill List`, `Order Detail`) will return empty results in staging as settlement data is only available in production.
+> **Staging vs Production:** Staging uses `securestage.paytmpayments.com`. Settlement operations (`Settlement: Transaction List`, `Settlement: Bill List`, `Fetch Order Details`) will return empty results in staging as settlement data is only available in production.
 
 ---
 
@@ -24,19 +24,19 @@ Official Zapier CLI integration for Paytm Payments.
 
 | #   | Zapier Key                 | Category     | Type   | Endpoint                                        |
 | --- | -------------------------- | ------------ | ------ | ----------------------------------------------- |
-| 1   | `fetchOrderList`           | Order        | Search | `POST /merchant-passbook/search/list/order/v2`  |
-| 2   | `orderDetail`              | Order        | Search | `POST /merchant-adapter/internal/ORDER_DETAIL`  |
-| 3   | `fetchPaymentLinks`        | Payment Link | Search | `POST /link/fetch`                              |
-| 4   | `fetchTransactionsForLink` | Payment Link | Search | `POST /link/fetchTransaction`                   |
+| 1   | `fetch_all_orders`         | Order        | Search | `POST /merchant-passbook/search/list/order/v2`  |
+| 2   | `fetch_order_details`      | Order        | Search | `POST /merchant-adapter/internal/orderDetail`      |
+| 3   | `fetch_all_payment_links`  | Payment Link | Search | `POST /link/fetch`                              |
+| 4   | `fetch_payment_link_details` | Payment Link | Search | `POST /link/fetchTransaction`                   |
 | 5   | `create_payment_link`      | Payment Link | Create | `POST /link/create`                             |
-| 6   | `fetchRefundList`          | Refund       | Search | `POST /merchant-passbook/api/v1/refundList`     |
-| 7   | `checkRefundStatus`        | Refund       | Search | `POST /v2/refund/status`                        |
+| 6   | `fetch_all_refund`         | Refund       | Search | `POST /merchant-passbook/api/v1/refundList`     |
+| 7   | `fetch_refund_details`     | Refund       | Search | `POST /v2/refund/status`                        |
 | 8   | `create_refund`            | Refund       | Create | `POST /refund/apply`                            |
-| 9   | `settlementTxnListByDate`  | Settlement   | Search | `POST /merchant-adapter/internal/TxnListByDate` |
-| 10  | `settlementBillList`       | Settlement   | Search | `POST /merchant-adapter/internal/BILL_LIST`     |
-| 11  | `fetchSubscriptionStatus`  | Subscription | Search | `POST /subscription/subscription/checkStatus`   |
+| 9   | `fetch_all_settlements`    | Settlement   | Search | `POST /merchant-adapter/internal/settlementTxnListByDate` |
+| 10  | `fetch_settlement_details` | Settlement   | Search | `POST /merchant-adapter/internal/settlementBillList`        |
+| 11  | `fetch_subscription_details` | Subscription | Search | `POST /subscription/subscription/checkStatus`   |
 | 12  | `pause_resume_subscription` | Subscription | Create | `POST /subscription/subscription/status/modify` |
-| 13  | `cancelSubscription`       | Subscription | Create | `POST /subscription/subscription/cancel`        |
+| 13  | `cancel_subscription`      | Subscription | Create | `POST /subscription/subscription/cancel`        |
 | 14 | `customApiCall` | Universal | Create | Any Paytm endpoint — path supplied at runtime |
 
 
@@ -45,13 +45,13 @@ Official Zapier CLI integration for Paytm Payments.
 ## Example Zaps
 
 **Auto-refund failed orders**
-Trigger: Schedule (daily) → Search: `fetchOrderList` (status=FAILURE) → Create: `create_refund`
+Trigger: Schedule (daily) → Search: `fetch_all_orders` (status=FAILURE) → Create: `create_refund`
 
 **Notify on new payment link payment**
-Trigger: Schedule (every 15 min) → Search: `fetchTransactionsForLink` → Filter: status=SUCCESS → Action: Send Slack/email notification
+Trigger: Schedule (every 15 min) → Search: `fetch_payment_link_details` → Filter: status=SUCCESS → Action: Send Slack/email notification
 
 **Daily settlement reconciliation**
-Trigger: Schedule (daily 9 AM) → Search: `settlementBillList` → Action: Append rows to Google Sheets
+Trigger: Schedule (daily 9 AM) → Search: `fetch_settlement_details` → Action: Append rows to Google Sheets
 
 **Pause subscription on failed payment**
 Trigger: Webhook (payment failure event) → Create: `pause_resume_subscription` (status=SUSPENDED) → Action: Send SMS to customer
@@ -98,7 +98,7 @@ All operations use the Paytm AES-128-CBC checksum algorithm (native Node.js `cry
 2. SHA-256(params `|` salt) → hex → append salt
 3. AES-128-CBC encrypt with IV `@@@@&&&&####$$$$`
 
-Settlement operations (`settlementTxnListByDate`, `settlementBillList`, `orderDetail`) use a different envelope format where the signature is passed as an HTTP header rather than in the request body — see `docs/api-mapping.md`.
+Settlement operations (`settlementTxnListByDate`, `settlementBillList`, `fetch_order_details`) use a different envelope format where the signature is passed as an HTTP header rather than in the request body — see `docs/api-mapping.md`.
 
 ---
 
@@ -107,8 +107,8 @@ Settlement operations (`settlementTxnListByDate`, `settlementBillList`, `orderDe
 **"Paytm Key Secret must be exactly 16 bytes"**
 Your Key Secret is the wrong length. Copy it directly from [Dashboard → API Keys](https://dashboard.paytmpayments.com/next/apikeys). Watch out for leading/trailing spaces.
 
-**"At least one of Subscription ID, Order ID, or Link ID is required"**
-`fetchSubscriptionStatus` needs at least one identifier. Provide `subsId`, `orderId`, or `linkId`.
+**"Provide Subscription ID, Link ID, or both Order ID and Customer ID."**
+`fetch_subscription_details` needs one valid identifier combination: `subsId` alone, `linkId` alone, or `orderId` together with `custId`.
 
 **Settlement operations return empty results**
 Settlement data (`settlementTxnListByDate`, `settlementBillList`) is only available in production. Switch your connected account to `production` environment.

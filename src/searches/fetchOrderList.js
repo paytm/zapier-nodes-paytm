@@ -1,7 +1,7 @@
 'use strict';
 
 const PaytmChecksum = require('../checksum');
-const { buildUrl, formatDateToIst, trimStr } = require('../utils');
+const { buildUrl, formatDateToIst, trimStr, deepConvertDates } = require('../utils');
 
 // When the user selects ALL status, Paytm does not accept the literal string "ALL"
 const ORDER_STATUS_ALL_PIPE = 'SUCCESS|FAILURE|PENDING';
@@ -67,89 +67,98 @@ const perform = async (z, bundle) => {
   const orders = resultBody.orderList || resultBody.orders || resultBody.data;
 
   if (Array.isArray(orders)) {
-    return orders.map((o, i) => ({ id: o.orderId || o.merchantOrderId || i, ...o }));
+    const items = orders.map((o, i) => ({ id: o.orderId || o.merchantOrderId || i, ...o }));
+    return deepConvertDates(items);
   }
-  return [{ id: 'result', ...resultBody }];
+  return deepConvertDates([{ id: 'result', ...resultBody }]);
 };
 
 module.exports = {
-  key: 'fetchOrderList',
+  key: 'fetch_all_orders',
   noun: 'Order',
   display: {
-    label: 'Fetch Order List',
-    description:
-      'Retrieves a paginated list of orders from the Paytm merchant passbook for a given date range.',
+    label: 'Fetch All Orders',
+    description: 'Fetch all orders within a date range.',
   },
   operation: {
     cleanInputData: false,
     inputFields: [
       {
         key: 'fromDate',
-        label: 'Start Date',
+        label: 'Start date',
         type: 'datetime',
         required: true,
-        helpText: 'Start of the date range to fetch orders.',
+        helpText: 'Start date to fetch orders.',
       },
       {
         key: 'toDate',
-        label: 'End Date',
+        label: 'End date',
         type: 'datetime',
         required: true,
-        helpText: 'End of the date range to fetch orders.',
+        helpText: 'End date to fetch orders.',
       },
       {
         key: 'orderSearchType',
-        label: 'Transaction Type',
+        label: 'Transaction type',
         type: 'string',
-        choices: [
-          'ALL',
-          'TRANSACTION',
-          'CANCEL',
-          'REFUND',
-          'CHARGEBACK',
-          'TRANSFER_TO_BANK',
-          'M2B',
-          'REPAYMENT',
-          'TRANSFER_FOR_SETTLEMENT',
-        ],
+        required: true,
+        choices: {
+          ALL: 'All',
+          TRANSACTION: 'Transaction',
+          CANCEL: 'Cancel',
+          REFUND: 'Refund',
+          CHARGEBACK: 'Chargeback',
+          TRANSFER_TO_BANK: 'Transfer to bank',
+          M2B: 'M2B',
+          REPAYMENT: 'Repayment',
+          TRANSFER_FOR_SETTLEMENT: 'Transfer for settlement',
+        },
         default: 'ALL',
         helpText: 'Type of transaction to fetch.',
       },
       {
         key: 'orderSearchStatus',
-        label: 'Order Status',
+        label: 'Order status',
         type: 'string',
-        choices: ['ALL', 'SUCCESS', 'FAILURE', 'PENDING'],
+        required: true,
+        choices: {
+          ALL: 'All',
+          SUCCESS: 'Success',
+          FAILURE: 'Failure',
+          PENDING: 'Pending',
+        },
         default: 'SUCCESS',
-        helpText: 'Filter orders by status.',
+        helpText: 'Filter orders based on status.',
       },
       {
         key: 'pageNumber',
-        label: 'Page Number',
+        label: 'Page number',
         type: 'integer',
+        required: true,
         default: '1',
-        required: false,
+        helpText: 'Number of pages to fetch.',
       },
       {
         key: 'pageSize',
-        label: 'Page Size',
+        label: 'Page size',
         type: 'integer',
+        required: true,
         default: '20',
-        required: false,
-      },
-      {
-        key: 'merchantOrderId',
-        label: 'Merchant Order ID',
-        type: 'string',
-        required: false,
-        helpText: 'Optional: filter by merchant-generated order ID.',
+        helpText: 'Number of records to fetch in one iteration.',
       },
       {
         key: 'payMode',
-        label: 'Payment Mode',
+        label: 'Payment option',
         type: 'string',
         required: false,
-        helpText: 'Optional: filter by payment mode e.g. UPI, CARD.',
+        helpText: 'Filter orders based on payment option used for payment.',
+      },
+      {
+        key: 'merchantOrderId',
+        label: 'Merchant order ID',
+        type: 'string',
+        required: false,
+        helpText: 'Filter orders based on merchant generated order ID.',
       },
     ],
     perform,
