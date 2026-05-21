@@ -71,6 +71,7 @@ module.exports = {
   noun: 'API Response',
   display: {
     label: 'Custom API Call',
+    hidden: true,
     description:
       'Makes a signed POST request to any Paytm API endpoint not covered by the predefined operations. AES-128-CBC signing is handled automatically.',
   },

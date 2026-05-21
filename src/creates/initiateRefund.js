@@ -1,7 +1,7 @@
 'use strict';
 
 const PaytmChecksum = require('../checksum');
-const { buildUrl, trimStr } = require('../utils');
+const { buildUrl, trimStr, deepConvertDates } = require('../utils');
 
 const perform = async (z, bundle) => {
   const keySecret = bundle.authData.keySecret;
@@ -71,7 +71,7 @@ const perform = async (z, bundle) => {
 
   const data = response.json;
   const resultBody = data.body || data;
-  return { id: refId, refId, orderId, txnId, refundAmount, ...resultBody };
+  return deepConvertDates({ id: refId, refId, orderId, txnId, refundAmount, ...resultBody });
 };
 
 module.exports = {
@@ -85,30 +85,29 @@ module.exports = {
     cleanInputData: false,
     inputFields: [
       {
+            key: 'txnId',
+            label: 'Transaction ID',
+            type: 'string',
+            required: true,
+            dynamic: 'orders_dropdown.txnId.txnId',
+            helpText:
+              'Paytm transaction ID to initiate refund.',
+      },
+      {
         key: 'orderId',
         label: 'Order ID',
         type: 'string',
         required: true,
-        dynamic: 'orders_dropdown.orderId.merchantOrderId',
         helpText:
-          'Paytm **order ID** (`orderId`). Load from dropdown (recent **successful** orders, last ~30 days, same Passbook API as **Fetch All Orders**) or paste. ' +
-          'For a narrower range or filters, run **Fetch All Orders** first and map this field.',
-      },
-      {
-        key: 'txnId',
-        label: 'Transaction ID',
-        type: 'string',
-        required: true,
-        dynamic: 'orders_dropdown.txnId.merchantOrderId',
-        helpText:
-          'Paytm **transaction ID** (`txnId`) for this order. Dropdown uses the **Fetch All Orders** payload (Passbook rows); if `txnId` is missing from a row, paste the ID from the Paytm dashboard or a prior webhook step.',
+          'Order ID for intiating refund.',
       },
       {
         key: 'refId',
         label: 'Refund reference ID',
         type: 'string',
         required: true,
-        helpText: 'Merchant unique reference ID for this refund.',
+        placeholder: 'REF_123',
+        helpText: 'Enter a unique reference for this refund. ',
       },
       {
         key: 'txnType',
@@ -123,7 +122,8 @@ module.exports = {
         label: 'Refund amount',
         type: 'number',
         required: true,
-        helpText: 'Enter value lower-than-equal-to the order amount to initiate refund.',
+        placeholder: 'Refund amount in Rupees',
+        helpText: 'Enter amount lower-than-equal-to the order amount to initiate refund.',
       },
       {
         key: 'comments',
@@ -171,6 +171,7 @@ module.exports = {
       { key: 'refundAmount', label: 'Refund Amount' },
       { key: 'status', label: 'Status' },
       { key: 'refundId', label: 'Paytm Refund ID' },
+      { key: 'txnTimestamp',  label: 'Txn timestamp', type: 'datetime' },
     ],
     sample: {
       id: 'REF12345',

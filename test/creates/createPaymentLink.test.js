@@ -21,6 +21,7 @@ describe('createPaymentLink module structure', () => {
     expect(keys).toContain('linkName');
     expect(keys).toContain('linkDescription');
     expect(keys).toContain('linkType');
-    expect(keys).toContain('amount');
+    expect(keys).toContain('customPaymentSuccessMessage');
+    expect(keys).toContain('customerId');
   });
 });

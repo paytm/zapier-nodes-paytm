@@ -50,21 +50,27 @@ function assertEqual(actual, expected, label) {
 console.log('── parsePaytmDateToIso (spot checks) ───────────────────');
 
 const parseCases = [
-  { label: 'DD/MM/YYYY', input: '15/01/2024', expect: '2024-01-15T00:00:00+05:30' },
-  { label: 'DD/MM/YYYY HH:mm:ss', input: '15/01/2024 14:30:05', expect: '2024-01-15T14:30:05+05:30' },
-  { label: 'DD-MM-YYYY HH:mm:ss', input: '15-01-2024 09:00:00', expect: '2024-01-15T09:00:00+05:30' },
-  { label: 'DD-MM-YYYY date only', input: '20-01-2024', expect: '2024-01-20T00:00:00+05:30' },
-  { label: 'YYYY-MM-DD', input: '2024-06-01', expect: '2024-06-01T00:00:00+05:30' },
-  { label: 'YYYY-MM-DD HH:mm:ss', input: '2024-06-01 13:45:00', expect: '2024-06-01T13:45:00+05:30' },
+  { label: 'DD/MM/YYYY', input: '15/01/2024', expect: '2024-01-15T12:00:00+0530' },
+  { label: 'DD/MM/YYYY HH:mm:ss', input: '15/01/2024 14:30:05', expect: '2024-01-15T14:30:05+0530' },
+  { label: 'DD-MM-YYYY HH:mm:ss', input: '15-01-2024 09:00:00', expect: '2024-01-15T09:00:00+0530' },
+  { label: 'DD-MM-YYYY date only', input: '20-01-2024', expect: '2024-01-20T12:00:00+0530' },
+  { label: 'YYYY-MM-DD', input: '2024-06-01', expect: '2024-06-01T12:00:00+0530' },
+  { label: 'YYYY-MM-DD HH:mm:ss', input: '2024-06-01 13:45:00', expect: '2024-06-01T13:45:00+0530' },
   {
-    label: 'ISO with offset (passthrough)',
+    label: 'ISO with offset → ±HHMM',
     input: '2024-01-15T14:30:00+05:30',
-    expect: '2024-01-15T14:30:00+05:30',
+    expect: '2024-01-15T14:30:00+0530',
   },
-  { label: 'ISO Z (passthrough)', input: '2024-01-15T09:00:00Z', expect: '2024-01-15T09:00:00Z' },
-  { label: 'epoch ms number', input: 1705314600000, expect: '2024-01-15T16:00:00+05:30' },
-  { label: 'epoch ms string', input: '1705314600000', expect: '2024-01-15T16:00:00+05:30' },
-  { label: 'epoch seconds string', input: '1705314600', expect: '2024-01-15T16:00:00+05:30' },
+  { label: 'ISO Z → +0000', input: '2024-01-15T09:00:00Z', expect: '2024-01-15T09:00:00+0000' },
+  { label: 'ISO -0800 basic offset', input: '2023-12-01T12:32:01-0800', expect: '2023-12-01T12:32:01-0800' },
+  {
+    label: 'ISO space before offset',
+    input: '2023-12-01T12:32:01 -0800',
+    expect: '2023-12-01T12:32:01-0800',
+  },
+  { label: 'epoch ms number', input: 1705314600000, expect: '2024-01-15T16:00:00+0530' },
+  { label: 'epoch ms string', input: '1705314600000', expect: '2024-01-15T16:00:00+0530' },
+  { label: 'epoch seconds string', input: '1705314600', expect: '2024-01-15T16:00:00+0530' },
   { label: 'null', input: null, expect: null },
   { label: 'empty string', input: '', expect: '' },
   { label: 'non-date string', input: 'INIT', expect: 'INIT' },
@@ -108,7 +114,7 @@ const afterOrder = JSON.stringify(orderListSample);
 assert(beforeOrder === afterOrder, 'deepConvertDates must not mutate input (order list sample)');
 assertEqual(
   convOrder.txnDate,
-  '2024-01-15T14:30:05+05:30',
+  '2024-01-15T14:30:05+0530',
   'top-level txnDate'
 );
 assertEqual(
@@ -118,27 +124,27 @@ assertEqual(
 );
 assertEqual(
   convOrder.orders.orderList[0].txnDate,
-  '2024-01-15T09:00:00+05:30',
+  '2024-01-15T09:00:00+0530',
   'nested order txnDate'
 );
 assertEqual(
   convOrder.orders.orderList[0].settlementDate,
-  '2024-01-20T00:00:00+05:30',
+  '2024-01-20T12:00:00+0530',
   'nested settlementDate'
 );
 assertEqual(
   convOrder.orders.orderList[1].txnDate,
-  '2024-01-15T14:30:00+05:30',
+  '2024-01-15T14:30:00+0530',
   'passthrough ISO txnDate'
 );
 assertEqual(
   convOrder.orders.orderList[1].paymentDate,
-  '2024-01-15T16:00:00+05:30',
+  '2024-01-15T16:00:00+0530',
   'epoch paymentDate'
 );
 assertEqual(
   convOrder.nested.deeply.paidDate,
-  '2024-01-20T00:00:00+05:30',
+  '2024-01-20T12:00:00+0530',
   'deep nested paidDate'
 );
 
@@ -150,12 +156,12 @@ const linkSample = {
 };
 
 const convLink = deepConvertDates(linkSample);
-assertEqual(convLink.expiryDate, '2025-12-31T00:00:00+05:30', 'link expiryDate');
-assertEqual(convLink.linkCreateDate, '2025-06-01T10:00:00+05:30', 'link linkCreateDate');
+assertEqual(convLink.expiryDate, '2025-12-31T12:00:00+0530', 'link expiryDate');
+assertEqual(convLink.linkCreateDate, '2025-06-01T10:00:00+0530', 'link linkCreateDate');
 
 const refundSample = [{ id: 'r1', txnDate: '10/03/2025 11:22:33', refundAmount: '99' }];
 const convRefund = deepConvertDates(refundSample);
-assertEqual(convRefund[0].txnDate, '2025-03-10T11:22:33+05:30', 'array root refund txnDate');
+assertEqual(convRefund[0].txnDate, '2025-03-10T11:22:33+0530', 'array root refund txnDate');
 
 const subSample = {
   subsId: 'S1',
@@ -165,10 +171,10 @@ const subSample = {
   lastChargedDate: '15/12/2025',
 };
 const convSub = deepConvertDates(subSample);
-assertEqual(convSub.subscriptionStartDate, '2026-01-01T00:00:00+05:30', 'subscriptionStartDate');
-assertEqual(convSub.subscriptionExpiryDate, '2027-01-01T00:00:00+05:30', 'subscriptionExpiryDate');
-assertEqual(convSub.nextChargeDate, '2026-01-15T00:00:00+05:30', 'nextChargeDate');
-assertEqual(convSub.lastChargedDate, '2025-12-15T00:00:00+05:30', 'lastChargedDate');
+assertEqual(convSub.subscriptionStartDate, '2026-01-01T12:00:00+0530', 'subscriptionStartDate');
+assertEqual(convSub.subscriptionExpiryDate, '2027-01-01T12:00:00+0530', 'subscriptionExpiryDate');
+assertEqual(convSub.nextChargeDate, '2026-01-15T00:00:00+0530', 'nextChargeDate');
+assertEqual(convSub.lastChargedDate, '2025-12-15T12:00:00+0530', 'lastChargedDate');
 
 assert(
   DATE_OUTPUT_FIELDS.has('txnDate') && DATE_OUTPUT_FIELDS.has('settlementDate'),

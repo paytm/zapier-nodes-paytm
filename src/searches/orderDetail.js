@@ -58,9 +58,9 @@ module.exports = {
         label: 'Transaction ID',
         type: 'string',
         required: true,
-        dynamic: 'orders_dropdown.orderId.merchantOrderId',
+        dynamic: 'orders_dropdown.txnId.txnId',
         helpText:
-          'Order transaction ID (`bizOrderId` / Paytm **`orderId`**). Load from dropdown (recent **successful** orders, same **Fetch All Orders** Passbook list) or paste; map from a prior **Fetch All Orders** step when you need filters.',
+          'Fetch payment and settlement details of an order.',
       },
       {
         key: 'isSettlementInfo',

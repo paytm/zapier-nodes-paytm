@@ -71,8 +71,7 @@ module.exports = {
         required: true,
         dynamic: 'payment_links_dropdown.linkId.linkName',
         helpText:
-          'Paytm payment link ID. Open the dropdown to load links (same **POST /link/fetch** data as **Fetch All Payment Links**, ' +
-          'via a hidden trigger—only `mid` applies unless you add filters elsewhere), or paste a link ID.',
+          'Fetch transactions against a link ID. ',
       },
       {
         key: 'searchStartDate',
@@ -80,6 +79,7 @@ module.exports = {
         type: 'datetime',
         required: false,
         helpText: 'Start date to fetch transactions.',
+        placeholder: 'yyyy-mm-dd hh:mm:ss',
       },
       {
         key: 'searchEndDate',
@@ -87,6 +87,7 @@ module.exports = {
         type: 'datetime',
         required: false,
         helpText: 'End date to fetch transactions.',
+        placeholder: 'yyyy-mm-dd hh:mm:ss',
       },
       {
         key: 'fetchAllTxns',
@@ -104,6 +105,8 @@ module.exports = {
       { key: 'orderId', label: 'Order ID' },
       { key: 'txnAmount', label: 'Transaction Amount' },
       { key: 'status', label: 'Status' },
+      { key: 'orderCreatedTime', label: 'Order created time', type: 'datetime' },
+      { key: 'orderCompletedTime', label: 'Order completed time', type: 'datetime' },
       { key: 'txnDate', label: 'Transaction Date', type: 'datetime' },
     ],
     sample: {

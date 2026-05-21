@@ -126,6 +126,7 @@ module.exports = {
         type: 'datetime',
         required: false,
         helpText: 'Start date to fetch payment links.',
+        placeholder: 'yyyy-mm-dd hh:mm:ss',
       },
       {
         key: 'filterToDate',
@@ -133,6 +134,7 @@ module.exports = {
         type: 'datetime',
         required: false,
         helpText: 'End date to fetch payment links.',
+        placeholder: 'yyyy-mm-dd hh:mm:ss',
       },
       {
         key: 'customerName',
@@ -173,6 +175,7 @@ module.exports = {
       { key: 'amount', label: 'Amount' },
       { key: 'paymentStatus', label: 'Payment Status' },
       { key: 'linkUrl', label: 'Payment URL' },
+      { key: 'updatedAt', label: 'Updated at', type: 'datetime' },
     ],
     sample: {
       id: 'LINK123',

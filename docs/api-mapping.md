@@ -128,8 +128,9 @@ Settlement envelope (see Settlement section below). Body params:
     },
     "merchantRequestId": "(optional)",
     "customerId": "(optional)",
-    "expiryDate": "DD/MM/YYYY (optional)",
+    "expiryDate": "DD/MM/YYYY or DD/MM/YYYY HH:mm:ss (optional; n8n parity)",
     "linkNotes": "(optional)",
+    "customPaymentSuccessMessage": "(optional; post-payment message for customer)",
     "statusCallbackUrl": "(optional)"
   },
   "head": { "tokenType": "AES", "signature": "...", "channelId": "WEB" }
@@ -142,8 +143,9 @@ Settlement envelope (see Settlement section below). Body params:
 
 | Zapier Key | n8n Operation | HTTP | Endpoint | Auth |
 |-----------|---------------|------|----------|------|
-| `fetchRefundList` | `fetchRefundList` | POST | `/merchant-passbook/api/v1/refundList` | Checksum [C] |
-| `checkRefundStatus` | `checkRefundStatus` | POST | `/v2/refund/status` | Checksum [C] |
+| `fetch_all_refund` | `fetchRefundList` | POST | `/merchant-passbook/api/v1/refundList` | Checksum [C] |
+| `list_refunds` *(hidden Zapier search)* | (same Refund List API) | POST | `/merchant-passbook/api/v1/refundList` | Checksum [C]; official doc — **`orders`** flattened + legacy **`refundList`** |
+| `fetch_refund_details` | `checkRefundStatus` | POST | `/v2/refund/status` | Checksum [C] |
 | `create_refund` | `initiateRefund` | POST | `/refund/apply` | Checksum [C] |
 
 #### fetchRefundList — Request Body
@@ -185,6 +187,8 @@ Settlement envelope (see Settlement section below). Body params:
 }
 ```
 
+> Zapier **`create_refund`** response: **`deepConvertDates`** is applied so allowlisted timestamps (including **`txnTimestamp`**) emit **`YYYY-MM-DDTHH:mm:ss±HHMM`** like **`fetch_refund_details`**.
+
 ---
 
 ### Resource: Settlement
@@ -221,10 +225,10 @@ URL pattern: `POST /merchant-adapter/internal/{FUNCTION_NAME}?mid={mid}`
 
 #### settlementTxnListByDate — Inner Body Fields
 - `ipRoleId` = merchantId
-- `settlementStartTime` (ISO, required)
+- `settlementStartTime` (ISO, required) — Zapier **`fetch_all_settlements`** uses placeholders **`yyyy-mm-dd hh:mm:ss`** and tooling copy aligned with **`fetch_settlement_details`**
 - `settlementEndTime` (ISO, required)
-- `pageNum` default 1
-- `pageSize` default 20
+- `pageNum` default 1 (**required** in Zapier)
+- `pageSize` default 20 (**required** in Zapier)
 - `settlementOrderId` (optional)
 
 #### settlementBillList — Inner Body Fields
@@ -237,8 +241,7 @@ URL pattern: `POST /merchant-adapter/internal/{FUNCTION_NAME}?mid={mid}`
 - `isFilterZeroAmount` = true (always)
 - `isEventFlow` = true (always)
 - `settlementBillId` (optional — payout ID)
-- `utrNo` (optional)
-- `settleStatus`: `BANK_INITIATED|PAYOUT_SETTLED|PAYOUT_UNSETTLED|WAIT_FOR_SETTLE` (optional)
+- `settleStatus` — optional (`BANK_INITIATED`|`PAYOUT_SETTLED`|`PAYOUT_UNSETTLED`|`WAIT_FOR_SETTLE`); Zapier step exposes **`settlement start/end`**, **paging**, and this optional filter only (**`utrNo`** is supported by Paytm but not collected in the Zapier UI).
 
 ---
 
@@ -263,6 +266,8 @@ URL pattern: `POST /merchant-adapter/internal/{FUNCTION_NAME}?mid={mid}`
   "head": { "tokenType": "AES", "signature": "...", "channelId": "WEB" }
 }
 ```
+
+> Response: Zapier merges into `{ id, …body }` and runs **`deepConvertDates`**. **`lastOrderCreationDate`** is parsed as Paytm IST wall clock when sent as naive **`yyyy-mm-dd[ T/t]hh:mm:ss[.fff]`**, matching the refund **`check status`** IST fix (no spurious **+05:30** shift).
 
 ---
 

@@ -67,7 +67,19 @@ const perform = async (z, bundle) => {
   const orders = resultBody.orderList || resultBody.orders || resultBody.data;
 
   if (Array.isArray(orders)) {
-    const items = orders.map((o, i) => ({ id: o.orderId || o.merchantOrderId || i, ...o }));
+    /** Same business id can appear more than once; Zapier requires unique `id` per row */
+    const countByBase = new Map();
+    const items = orders.map((o, i) => {
+      const base =
+        trimStr(o.orderId) ||
+        trimStr(o.merchantOrderId) ||
+        trimStr(o.txnId) ||
+        `row_${i}`;
+      const n = countByBase.get(base) || 0;
+      countByBase.set(base, n + 1);
+      const id = n === 0 ? base : `${base}__dup${n}`;
+      return { id, ...o };
+    });
     return deepConvertDates(items);
   }
   return deepConvertDates([{ id: 'result', ...resultBody }]);
@@ -88,6 +100,7 @@ module.exports = {
         label: 'Start date',
         type: 'datetime',
         required: true,
+        placeholder: 'yyyy-mm-dd hh:mm:ss',
         helpText: 'Start date to fetch orders.',
       },
       {
@@ -95,6 +108,7 @@ module.exports = {
         label: 'End date',
         type: 'datetime',
         required: true,
+        placeholder: 'yyyy-mm-dd hh:mm:ss',
         helpText: 'End date to fetch orders.',
       },
       {

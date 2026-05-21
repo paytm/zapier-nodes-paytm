@@ -10,6 +10,7 @@ const fetchOrderList = require('./src/searches/fetchOrderList');
 const fetchPaymentLinks = require('./src/searches/fetchPaymentLinks');
 const fetchTransactionsForLink = require('./src/searches/fetchTransactionsForLink');
 const fetchRefundList = require('./src/searches/fetchRefundList');
+const listRefunds = require('./src/searches/listRefunds');
 const checkRefundStatus = require('./src/searches/checkRefundStatus');
 const fetchSubscriptionStatus = require('./src/searches/fetchSubscriptionStatus');
 const settlementTxnListByDate = require('./src/searches/settlementTxnListByDate');
@@ -26,6 +27,7 @@ const customApiCall = require('./src/creates/customApiCall');
 // Triggers (hidden polling sources for dynamic dropdowns)
 const ordersDropdown = require('./src/triggers/ordersDropdown');
 const paymentLinksDropdown = require('./src/triggers/paymentLinksDropdown');
+const refundsDropdown = require('./src/triggers/refundsDropdown');
 
 const App = {
   version,
@@ -37,6 +39,7 @@ const App = {
     [fetchPaymentLinks.key]: fetchPaymentLinks,
     [fetchTransactionsForLink.key]: fetchTransactionsForLink,
     [fetchRefundList.key]: fetchRefundList,
+    [listRefunds.key]: listRefunds,
     [checkRefundStatus.key]: checkRefundStatus,
     [fetchSubscriptionStatus.key]: fetchSubscriptionStatus,
     [settlementTxnListByDate.key]: settlementTxnListByDate,
@@ -55,6 +58,7 @@ const App = {
   triggers: {
     [ordersDropdown.key]: ordersDropdown,
     [paymentLinksDropdown.key]: paymentLinksDropdown,
+    [refundsDropdown.key]: refundsDropdown,
   },
 };
 

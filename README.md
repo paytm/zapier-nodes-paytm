@@ -13,7 +13,7 @@ Official Zapier CLI integration for Paytm Payments.
   - **Merchant ID** — your MID (e.g. `PAYTM12345678901`)
   - **Key Secret** — your AES key, must be exactly 16 bytes
   - **Environment** — choose `staging` for testing, `production` for live transactions
-3. Click **Yes, Continue**. Zapier will run a test order-list call to verify the credentials.
+3. Click **Yes, Continue**. Zapier calls **`POST /link/fetch`** with your MID (same probe as **n8n** Paytm credentials): Paytm returns explicit messages when the **Key Secret does not match the MID** or the MID is wrong for that environment.
 
 > **Staging vs Production:** Staging uses `securestage.paytmpayments.com`. Settlement operations (`Settlement: Transaction List`, `Settlement: Bill List`, `Fetch Order Details`) will return empty results in staging as settlement data is only available in production.
 
@@ -37,7 +37,9 @@ Official Zapier CLI integration for Paytm Payments.
 | 11  | `fetch_subscription_details` | Subscription | Search | `POST /subscription/subscription/checkStatus`   |
 | 12  | `pause_resume_subscription` | Subscription | Create | `POST /subscription/subscription/status/modify` |
 | 13  | `cancel_subscription`      | Subscription | Create | `POST /subscription/subscription/cancel`        |
-| 14 | `customApiCall` | Universal | Create | Any Paytm endpoint — path supplied at runtime |
+| 14  | `customApiCall` | Universal | Create | Any Paytm endpoint — path supplied at runtime |
+
+Hidden helpers (not listed in Zapier UI): **`list_refunds`** search powers **`refunds_dropdown`** (same endpoint as **`fetch_all_refund`**). Hidden triggers for dropdowns: `orders_dropdown`, `payment_links_dropdown`, `refunds_dropdown`.
 
 
 ---

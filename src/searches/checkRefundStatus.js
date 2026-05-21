@@ -45,21 +45,22 @@ module.exports = {
   operation: {
     cleanInputData: false,
     inputFields: [
+    {
+        key: 'refId',
+        label: 'Refund Reference ID',
+        type: 'string',
+        required: true,
+        dynamic: 'refunds_dropdown.refId.refIdDropdownLabel',
+        helpText:
+              'Refund Reference ID entered while initiating the refund.',
+      },
       {
         key: 'orderId',
         label: 'Order ID',
         type: 'string',
         required: true,
-        dynamic: 'orders_dropdown.orderId.merchantOrderId',
         helpText:
-          'Original **Paytm order ID** (`orderId`) for the refund. Load from dropdown (labels show **Merchant Order ID**; same Passbook list as **Fetch All Orders**, last ~30 days / success by default) or paste.',
-      },
-      {
-        key: 'refId',
-        label: 'Refund Reference ID',
-        type: 'string',
-        required: true,
-        helpText: 'The merchant-generated reference ID used when initiating the refund.',
+          'Order ID against which the refund was initiated.',
       },
     ],
     perform,
@@ -69,8 +70,13 @@ module.exports = {
       { key: 'orderId', label: 'Order ID' },
       { key: 'refundAmount', label: 'Refund Amount' },
       { key: 'status', label: 'Status' },
-      { key: 'txnDate', label: 'Refund Date', type: 'datetime' },
+      { key: 'txnDate', label: 'Refund date', type: 'datetime' },
       { key: 'refundId', label: 'Paytm Refund ID' },
+      { key: 'txnTimestamp', label: 'Transaction timestamp', type: 'datetime' },
+      { key: 'merchantRefundRequestTimestamp', label: 'refund request timestamp', type: 'datetime' },
+      { key: 'acceptRefundTimestamp', label: 'accept refund timestamp', type: 'datetime' },
+      { key: 'userCreditExpectedDate', label: 'credit accept date', type: 'datetime' },
+      { key: 'userCreditInitiateTimestamp', label: 'credit initiate timestamp', type: 'datetime' },
     ],
     sample: {
       id: 'REF12345',

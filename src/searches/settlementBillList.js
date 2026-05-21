@@ -29,9 +29,6 @@ const perform = async (z, bundle) => {
   const settlementBillId = trimStr(bundle.inputData.settlementBillId);
   if (settlementBillId) businessBody.settlementBillId = settlementBillId;
 
-  const utrNo = trimStr(bundle.inputData.utrNo);
-  if (utrNo) businessBody.utrNo = utrNo;
-
   const settleStatus = trimStr(bundle.inputData.settleStatus);
   if (settleStatus) businessBody.settleStatus = settleStatus;
 
@@ -73,47 +70,42 @@ module.exports = {
     inputFields: [
       {
         key: 'settlementStartTime',
-        label: 'Settlement Start Time',
+        label: 'Settlement start time',
         type: 'datetime',
         required: true,
-        helpText: 'Start of the settlement bill date range.',
+        placeholder: 'yyyy-mm-dd hh:mm:ss',
+        helpText: 'Start date to fetch settlements.',
       },
       {
         key: 'settlementEndTime',
-        label: 'Settlement End Time',
+        label: 'Settlement end time',
         type: 'datetime',
         required: true,
-        helpText: 'End of the settlement bill date range.',
+        placeholder: 'yyyy-mm-dd hh:mm:ss',
+        helpText: 'End date to fetch settlements.',
       },
       {
         key: 'pageNum',
-        label: 'Page Number',
+        label: 'Page number',
         type: 'integer',
         default: '1',
-        required: false,
+        required: true,
+        helpText: 'Number of pages to fetch.',
       },
       {
         key: 'pageSize',
-        label: 'Page Size',
+        label: 'Page size',
         type: 'integer',
         default: '20',
-        required: false,
-        helpText: 'Maximum 50 records per page.',
-      },
-      {
-        key: 'utrNo',
-        label: 'UTR Number',
-        type: 'string',
-        required: false,
-        helpText: 'Optional: filter by UTR number.',
+        required: true,
+        helpText: 'Number of settlement to fetch per iteration',
       },
       {
         key: 'settleStatus',
-        label: 'Settlement Status',
+        label: 'Settlement status',
         type: 'string',
         choices: ['BANK_INITIATED', 'PAYOUT_SETTLED', 'PAYOUT_UNSETTLED', 'WAIT_FOR_SETTLE'],
         required: false,
-        helpText: 'Optional: filter by settlement status.',
       },
     ],
     perform,

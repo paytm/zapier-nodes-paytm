@@ -34,7 +34,8 @@ const perform = async (z, bundle) => {
 
   const data = response.json;
   const resultBody = data.body || data;
-  return [{ id: subsId, subsId, requestedStatus: status, ...resultBody }];
+  /** Creates must return a **single object**, not an array (Zapier `checkOutput` / `after` middleware). */
+  return { id: subsId, subsId, requestedStatus: status, ...resultBody };
 };
 
 module.exports = {
@@ -52,7 +53,7 @@ module.exports = {
         label: 'Subscription ID',
         type: 'string',
         required: true,
-        helpText: 'Subscription ID to update.',
+        helpText: 'Enter the subscription ID shared at the time of successful mandate registration.',
       },
       {
         key: 'status',

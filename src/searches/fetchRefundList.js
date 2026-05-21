@@ -68,15 +68,16 @@ module.exports = {
         label: 'Start Date',
         type: 'datetime',
         required: true,
-        helpText: 'Start of the refund search range. Sent as YYYY-MM-DDTHH:mm:ss+05:30.',
+        placeholder: 'yyyy-mm-dd hh:mm:ss',
+        helpText: 'Start date to fetch refunds.'
       },
       {
         key: 'endDate',
         label: 'End Date',
         type: 'datetime',
         required: true,
-        helpText:
-          'End of the refund search range. Maximum range is 30 days from the start date.',
+        placeholder:'yyyy-mm-dd hh:mm:ss',
+        helpText: 'End date to fetch refunds.',
       },
       {
         key: 'pageNumber',
@@ -84,6 +85,7 @@ module.exports = {
         type: 'integer',
         default: '1',
         required: false,
+        helpText: 'Number of pages to fetch.',
       },
       {
         key: 'pageSize',
@@ -91,6 +93,7 @@ module.exports = {
         type: 'integer',
         default: '20',
         required: false,
+        helpText: 'Number of refunds to fetch in one iteration.'
       },
       {
         key: 'isSort',
@@ -110,6 +113,9 @@ module.exports = {
       { key: 'refundAmount', label: 'Refund Amount' },
       { key: 'status', label: 'Status' },
       { key: 'txnDate', label: 'Refund Date', type: 'datetime' },
+      { key: 'txnTimeStamp', label: 'Txn Timestamp', type: 'datetime' },
+      { key: 'merchantRefundRequestTimeStamp', label: 'Refund Req Time', type: 'datetime' },
+      { key: 'acceptRefundTimeStamp', label: 'Accept Refund Time', type: 'datetime' },
     ],
     sample: {
       id: 'REF12345',

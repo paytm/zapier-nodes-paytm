@@ -3,6 +3,9 @@
 /**
  * Hidden polling trigger: same `perform` as search `fetch_all_payment_links` (`POST /link/fetch`).
  * Powers `dynamic` on **Fetch Payment Link Details** → Link ID (no user-facing trigger card).
+ *
+ * Paytm `/link/fetch` does not expose paging fields in our integration — omitting `canPaginate`;
+ * large lists rely on filters on the search action instead.
  */
 
 const fetchPaymentLinksSearch = require('../searches/fetchPaymentLinks');

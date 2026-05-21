@@ -1,11 +1,13 @@
 {
   "name": "zapier-nodes-paytm",
-  "version": "1.0.5",
+  "version": "1.0.0",
   "description": "Zapier integration for Paytm Payments — 13 actions/searches across Orders, Payment Links, Refunds, Settlements, and Subscriptions",
   "main": "index.js",
   "scripts": {
     "test": "jest --testEnvironment node --forceExit",
     "test:auth": "jest test/auth.test.js --testEnvironment node --forceExit",
+    "test:auth:live": "node scripts/test-auth-connection-local.js",
+    "debug:pause-resume": "node scripts/debug-pause-resume-subscription.js",
     "lint": "eslint src/ index.js"
   },
   "engines": {

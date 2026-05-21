@@ -4,8 +4,8 @@
 /**
  * Calls real Paytm APIs using each search's production `perform()` (same request
  * shaping + `deepConvertDates` as Zapier), then checks every allowlisted date field
- * in the returned payload for ISO-8601-with-timezone strings (not legacy Paytm
- * DD/MM/YYYY style).
+ * in the returned payload for ISO-style **`YYYY-MM-DDTHH:mm:ss±HHMM`** (or legacy `Z`), not DD/MM.
+ * DD/MM/YYYY style.
  *
  * Prerequisites:
  *   - Copy .env.example → .env with PAYTM_MID, PAYTM_KEY_SECRET (16 bytes)
@@ -59,7 +59,7 @@ const PAYTM_ENV = process.env.PAYTM_ENV || 'staging';
 
 const isoOk = (s) =>
   typeof s === 'string' &&
-  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})$/.test(s);
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-](?:\d{2}:?\d{2}|\d{4}))$/.test(s);
 
 const looksLegacyPaytm = (s) =>
   typeof s === 'string' &&
