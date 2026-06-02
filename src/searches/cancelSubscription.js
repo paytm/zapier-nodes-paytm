@@ -29,11 +29,12 @@ const perform = async (z, bundle) => {
 
   const data = response.json;
   const resultBody = data.body || data;
-  return [{ id: subsId, subsId, ...resultBody }];
+  /** Creates must return a **single object**, not an array. */
+  return { id: subsId, subsId, ...resultBody };
 };
 
 module.exports = {
-  key: 'cancelSubscription',
+  key: 'cancel_subscription',
   noun: 'Subscription',
   display: {
     label: 'Cancel Subscription',
@@ -47,7 +48,7 @@ module.exports = {
         label: 'Subscription ID',
         type: 'string',
         required: true,
-        helpText: 'The Paytm subscription ID to cancel.',
+        helpText: 'Enter the Subscription ID shared at the time of successful mandate registration. ',
       },
     ],
     perform,
@@ -57,6 +58,7 @@ module.exports = {
       { key: 'resultCode', label: 'Result Code' },
       { key: 'resultStatus', label: 'Result Status' },
       { key: 'resultMsg', label: 'Result Message' },
+      { key: 'createdDate', label: 'Created Date', type: 'datetime' },
     ],
     sample: {
       id: 'SUBS12345',

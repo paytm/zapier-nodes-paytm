@@ -1,9 +1,9 @@
 'use strict';
 
 const PaytmChecksum = require('../checksum');
-const { buildUrl, formatDateToIst, buildSettlementEnvelope, trimStr } = require('../utils');
+const { buildUrl, formatDateToIst, buildSettlementEnvelope, trimStr, deepConvertDates } = require('../utils');
 
-const SETTLEMENT_PATH = (mid) => `/merchant-adapter/internal/TxnListByDate?mid=${mid}`;
+const SETTLEMENT_PATH = (mid) => `/merchant-adapter/internal/settlementTxnListByDate?mid=${mid}`;
 
 const perform = async (z, bundle) => {
   const keySecret = bundle.authData.keySecret;
@@ -43,56 +43,52 @@ const perform = async (z, bundle) => {
   const txns = resultBody.txnList || resultBody.transactions || resultBody.data;
 
   if (Array.isArray(txns)) {
-    return txns.map((t, i) => ({ id: t.txnId || t.orderId || i, ...t }));
+    const items = txns.map((t, i) => ({ id: t.txnId || t.orderId || i, ...t }));
+    return deepConvertDates(items);
   }
-  return [{ id: 'result', ...resultBody }];
+  return deepConvertDates([{ id: 'result', ...resultBody }]);
 };
 
 module.exports = {
-  key: 'settlementTxnListByDate',
-  noun: 'Settlement Transaction',
+  key: 'fetch_all_settlements',
+  noun: 'Settlement',
   display: {
-    label: 'Settlement: Transaction List by Date',
+    label: 'Fetch All Settlements',
     description:
-      'Retrieves settlement transactions for a merchant within a specified date range.',
+      'Fetch all settlements within a date range.',
   },
   operation: {
     cleanInputData: false,
     inputFields: [
       {
         key: 'settlementStartTime',
-        label: 'Settlement Start Time',
+        label: 'Settlement start time',
         type: 'datetime',
         required: true,
-        helpText: 'Start of the settlement date range (converts to YYYY-MM-DDTHH:mm:ss+05:30).',
+        placeholder: 'yyyy-mm-dd hh:mm:ss',
+        helpText: 'Start date to fetch settlements.',
       },
       {
         key: 'settlementEndTime',
-        label: 'Settlement End Time',
+        label: 'Settlement end time',
         type: 'datetime',
         required: true,
-        helpText: 'End of the settlement date range.',
+        placeholder: 'yyyy-mm-dd hh:mm:ss',
+        helpText: 'End date to fetch settlements.',
       },
       {
         key: 'pageNum',
-        label: 'Page Number',
+        label: 'Page number',
         type: 'integer',
         default: '1',
-        required: false,
+        required: true,
       },
       {
         key: 'pageSize',
-        label: 'Page Size',
+        label: 'Page size',
         type: 'integer',
         default: '20',
-        required: false,
-      },
-      {
-        key: 'settlementOrderId',
-        label: 'Settlement Order ID',
-        type: 'string',
-        required: false,
-        helpText: 'Optional: filter by a specific settlement order ID.',
+        required: true,
       },
     ],
     perform,

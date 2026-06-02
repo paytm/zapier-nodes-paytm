@@ -34,15 +34,16 @@ const perform = async (z, bundle) => {
 
   const data = response.json;
   const resultBody = data.body || data;
-  return [{ id: subsId, subsId, requestedStatus: status, ...resultBody }];
+  /** Creates must return a **single object**, not an array (Zapier `checkOutput` / `after` middleware). */
+  return { id: subsId, subsId, requestedStatus: status, ...resultBody };
 };
 
 module.exports = {
-  key: 'pauseResumeSubscription',
-  noun: 'Subscription Status',
+  key: 'pause_resume_subscription',
+  noun: 'Subscription',
   display: {
     label: 'Pause or Resume Subscription',
-    description: 'Changes a Paytm subscription status to SUSPENDED (pause) or ACTIVE (resume).',
+    description: 'Pause or resume an active subscription.',
   },
   operation: {
     cleanInputData: false,
@@ -52,16 +53,16 @@ module.exports = {
         label: 'Subscription ID',
         type: 'string',
         required: true,
-        helpText: 'The Paytm subscription ID to pause or resume.',
+        helpText: 'Enter the subscription ID shared at the time of successful mandate registration.',
       },
       {
         key: 'status',
-        label: 'Target Status',
+        label: 'Target status',
         type: 'string',
         required: true,
-        choices: ['SUSPENDED', 'ACTIVE'],
+        choices: { SUSPENDED: 'Suspended', ACTIVE: 'Active' },
         default: 'SUSPENDED',
-        helpText: 'The status to move the subscription into.',
+        helpText: 'Status to which the subscription should be updated.',
       },
     ],
     perform,
