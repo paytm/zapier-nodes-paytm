@@ -1,17 +1,17 @@
 'use strict';
 
 const operations = [
-  { mod: require('../src/searches/fetchPaymentLinks'), key: 'fetchPaymentLinks', requiredInputs: [] },
-  { mod: require('../src/searches/fetchTransactionsForLink'), key: 'fetchTransactionsForLink', requiredInputs: ['linkId'] },
-  { mod: require('../src/searches/fetchRefundList'), key: 'fetchRefundList', requiredInputs: ['startDate', 'endDate'] },
-  { mod: require('../src/searches/checkRefundStatus'), key: 'checkRefundStatus', requiredInputs: ['orderId', 'refId'] },
-  { mod: require('../src/searches/fetchSubscriptionStatus'), key: 'fetchSubscriptionStatus', requiredInputs: [] },
-  { mod: require('../src/searches/settlementTxnListByDate'), key: 'settlementTxnListByDate', requiredInputs: ['settlementStartTime', 'settlementEndTime'] },
-  { mod: require('../src/searches/settlementBillList'), key: 'settlementBillList', requiredInputs: ['settlementStartTime', 'settlementEndTime'] },
-  { mod: require('../src/searches/orderDetail'), key: 'orderDetail', requiredInputs: ['bizOrderId'] },
-  { mod: require('../src/searches/pauseResumeSubscription'), key: 'pauseResumeSubscription', requiredInputs: ['subsId', 'status'] },
-  { mod: require('../src/searches/cancelSubscription'), key: 'cancelSubscription', requiredInputs: ['subsId'] },
-  { mod: require('../src/creates/initiateRefund'), key: 'initiateRefund', requiredInputs: ['orderId', 'txnId', 'refId', 'refundAmount'] },
+  { mod: require('../src/searches/fetchPaymentLinks'), key: 'fetch_all_payment_links', requiredInputs: [] },
+  { mod: require('../src/searches/fetchTransactionsForLink'), key: 'fetch_payment_link_details', requiredInputs: ['linkId'] },
+  { mod: require('../src/searches/listRefunds'), key: 'list_refunds', requiredInputs: ['startDate', 'endDate'] },
+  { mod: require('../src/searches/checkRefundStatus'), key: 'fetch_refund_details', requiredInputs: ['orderId', 'refId'] },
+  { mod: require('../src/searches/fetchSubscriptionStatus'), key: 'fetch_subscription_details', requiredInputs: [] },
+  { mod: require('../src/searches/settlementTxnListByDate'), key: 'fetch_all_settlements', requiredInputs: ['settlementStartTime', 'settlementEndTime', 'pageNum', 'pageSize'] },
+  { mod: require('../src/searches/settlementBillList'), key: 'fetch_settlement_details', requiredInputs: ['settlementStartTime', 'settlementEndTime', 'pageNum', 'pageSize'] },
+  { mod: require('../src/searches/orderDetail'), key: 'fetch_order_details', requiredInputs: ['bizOrderId'] },
+  { mod: require('../src/searches/pauseResumeSubscription'), key: 'pause_resume_subscription', requiredInputs: ['subsId', 'status'] },
+  { mod: require('../src/searches/cancelSubscription'), key: 'cancel_subscription', requiredInputs: ['subsId'] },
+  { mod: require('../src/creates/initiateRefund'), key: 'create_refund', requiredInputs: ['orderId', 'txnId', 'refId', 'refundAmount'] },
   { mod: require('../src/creates/customApiCall'), key: 'customApiCall', requiredInputs: ['endpoint', 'requestBody', 'signingScheme'] },
 ];
 

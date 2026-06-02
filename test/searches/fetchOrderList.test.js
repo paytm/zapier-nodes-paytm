@@ -4,7 +4,7 @@ const fetchOrderList = require('../../src/searches/fetchOrderList');
 
 describe('fetchOrderList module structure', () => {
   test('has required Zapier keys', () => {
-    expect(fetchOrderList.key).toBe('fetchOrderList');
+    expect(fetchOrderList.key).toBe('fetch_all_orders');
     expect(fetchOrderList.noun).toBeDefined();
     expect(fetchOrderList.display.label).toBeDefined();
     expect(fetchOrderList.operation.inputFields).toBeInstanceOf(Array);

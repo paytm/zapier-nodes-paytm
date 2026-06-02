@@ -1,7 +1,7 @@
 'use strict';
 
 const PaytmChecksum = require('../checksum');
-const { buildUrl, formatDateToDdMmYyyy, trimStr } = require('../utils');
+const { buildUrl, formatExpiryDateForPaytmLink, trimStr, deepConvertDates } = require('../utils');
 
 const LINK_NAME_MAX_LEN = 64;
 const LINK_DESCRIPTION_MAX_LEN = 30;
@@ -75,12 +75,21 @@ const perform = async (z, bundle) => {
   if (customerId) body.customerId = customerId;
 
   const expiryDateRaw = bundle.inputData.expiryDate;
-  if (expiryDateRaw) {
-    body.expiryDate = formatDateToDdMmYyyy(expiryDateRaw) || trimStr(expiryDateRaw);
+  if (expiryDateRaw !== undefined && expiryDateRaw !== null && trimStr(expiryDateRaw) !== '') {
+    const formatted = formatExpiryDateForPaytmLink(expiryDateRaw, bundle.meta?.timezone);
+    if (!formatted) {
+      throw new z.errors.Error(
+        'Expiry date is invalid or unreadable. Use the date picker, YYYY-MM-DD, or an ISO datetime (time is sent as dd/mm/yyyy hh:mm:ss to Paytm).'
+      );
+    }
+    body.expiryDate = formatted;
   }
 
   const linkNotes = trimStr(bundle.inputData.linkNotes);
   if (linkNotes) body.linkNotes = linkNotes;
+
+  const customPaymentSuccessMessage = trimStr(bundle.inputData.customPaymentSuccessMessage);
+  if (customPaymentSuccessMessage) body.customPaymentSuccessMessage = customPaymentSuccessMessage;
 
   const statusCallbackUrl = trimStr(bundle.inputData.statusCallbackUrl);
   if (statusCallbackUrl) body.statusCallbackUrl = statusCallbackUrl;
@@ -102,97 +111,102 @@ const perform = async (z, bundle) => {
 
   const data = response.json;
   const resultBody = data.body || data;
-  return { id: resultBody.linkId || resultBody.merchantRequestId || 'new', ...resultBody };
+  return deepConvertDates({
+    id: resultBody.linkId || resultBody.merchantRequestId || 'new',
+    ...resultBody,
+  });
 };
 
 module.exports = {
-  key: 'createPaymentLink',
+  key: 'create_payment_link',
   noun: 'Payment Link',
   display: {
     label: 'Create Payment Link',
-    description: 'Creates a new Paytm payment link (FIXED amount or GENERIC open amount).',
+    description: 'Create and share payment links.',
   },
   operation: {
     cleanInputData: false,
     inputFields: [
       {
         key: 'linkType',
-        label: 'Link Type',
+        label: 'Link type',
         type: 'string',
         required: true,
-        choices: ['FIXED', 'GENERIC'],
+        choices: {
+          FIXED: 'Fixed (payment link with fixed amount)',
+          GENERIC: 'Generic (payment link with no preset amount)',
+        },
         default: 'FIXED',
       },
       {
         key: 'amount',
-        label: 'Amount (₹)',
+        label: 'Amount',
         type: 'number',
         required: false,
-        helpText: 'Required for FIXED links. Optional preset amount for GENERIC links.',
+        placeholder: 'Txn amount in Rupees',
+        helpText: 'Mandatory for FIXED payment link.',
       },
       {
         key: 'linkName',
-        label: 'Link Name',
+        label: 'Link name',
         type: 'string',
         required: true,
-        helpText: 'Display name shown to customers. Maximum 64 characters.',
+        placeholder: 'Max 64 chars',
+        helpText: 'Link label displayed to the customer.',
       },
       {
         key: 'linkDescription',
-        label: 'Link Description',
+        label: 'Link description',
         type: 'string',
         required: true,
-        helpText: 'Short description shown to customers. Maximum 30 characters.',
+        placeholder: 'Max 30 chars',
+        helpText: 'Link description displayed to the customer.',
       },
       {
         key: 'partialPayment',
-        label: 'Allow Partial Payment',
+        label: 'Partial payment',
         type: 'boolean',
         default: 'false',
         required: false,
-        helpText: 'When true, allows customers to pay in parts.',
+        helpText: 'Allow customers to pay in parts.',
       },
       {
         key: 'bindLinkIdMobile',
-        label: 'Bind Link to Mobile',
+        label: 'Bind link to mobile',
         type: 'boolean',
         default: 'false',
         required: false,
-        helpText: 'When true, binds this payment link to the customer mobile number.',
+        helpText: "Bind payment link to the customer's mobile number.",
       },
       {
         key: 'maxPaymentsAllowed',
-        label: 'Max Payments Allowed',
+        label: 'Max payments allowed',
         type: 'integer',
         default: '1',
         required: false,
+        helpText: 'Maximum number of payments allowed for this link.',
       },
       {
         key: 'customerName',
-        label: 'Customer Name',
+        label: 'Customer name',
         type: 'string',
         required: false,
       },
       {
         key: 'customerEmail',
-        label: 'Customer Email',
+        label: 'Customer email',
         type: 'string',
         required: false,
-        helpText: 'When provided, an email with the payment link is sent to the customer.',
+        placeholder: 'customer@example.com',
+        helpText: "Customer's email ID to send payment link.",
       },
       {
         key: 'customerMobile',
-        label: 'Customer Mobile',
+        label: 'Customer mobile',
         type: 'string',
         required: false,
-        helpText: 'When provided, an SMS with the payment link is sent to the customer.',
-      },
-      {
-        key: 'merchantRequestId',
-        label: 'Merchant Request ID',
-        type: 'string',
-        required: false,
-        helpText: 'Your unique reference ID for this link.',
+        placeholder: '9876543210',
+        helpText: "Customer's mobile number to send payment link.",
       },
       {
         key: 'customerId',
@@ -202,24 +216,32 @@ module.exports = {
       },
       {
         key: 'expiryDate',
-        label: 'Expiry Date',
+        label: 'Expiry date',
         type: 'datetime',
         required: false,
-        helpText: 'Link expiry date (converts to DD/MM/YYYY).',
+        placeholder: 'yyyy-mm-dd hh:mm:ss',
       },
       {
         key: 'linkNotes',
-        label: 'Link Notes',
+        label: 'Link notes',
         type: 'string',
         required: false,
-        helpText: 'Internal notes — not shown to the customer.',
+        helpText: 'Additional payment link notes, not shown to customer.',
       },
       {
         key: 'statusCallbackUrl',
-        label: 'Status Callback URL',
+        label: 'Status callback URL',
         type: 'string',
         required: false,
-        helpText: 'URL to receive payment status webhooks.',
+        helpText: 'Callback URL to post the transaction status.',
+      },
+      {
+        key: 'customPaymentSuccessMessage',
+        label: 'Payment success message',
+        type: 'string',
+        required: false,
+        placeholder: 'Thank you for your payment',
+        helpText: 'Display message after payment is successful.',
       },
     ],
     perform,
@@ -231,6 +253,9 @@ module.exports = {
       { key: 'linkType', label: 'Link Type' },
       { key: 'amount', label: 'Amount' },
       { key: 'merchantRequestId', label: 'Merchant Request ID' },
+      { key: 'expiryDate', label: 'Expiry date', type: 'datetime' },
+      { key: 'linkCreateDate', label: 'Link create date', type: 'datetime' },
+      { key: 'createdDate', label: 'Created date', type: 'datetime' },
     ],
     sample: {
       id: 'LINK12345',
@@ -239,6 +264,8 @@ module.exports = {
       linkName: 'Product Payment',
       linkType: 'FIXED',
       amount: '500.00',
+      expiryDate: '2026-12-31T18:30:00Z',
+      linkCreateDate: '2026-01-15T10:00:00Z',
     },
   },
 };

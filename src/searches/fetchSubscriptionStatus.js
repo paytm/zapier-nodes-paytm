@@ -1,7 +1,7 @@
 'use strict';
 
 const PaytmChecksum = require('../checksum');
-const { buildUrl, trimStr } = require('../utils');
+const { buildUrl, trimStr, deepConvertDates } = require('../utils');
 
 const perform = async (z, bundle) => {
   const keySecret = bundle.authData.keySecret;
@@ -12,9 +12,10 @@ const perform = async (z, bundle) => {
   const linkId = trimStr(bundle.inputData.linkId);
   const custId = trimStr(bundle.inputData.custId);
 
-  if (!subsId && !orderId && !linkId) {
+  // Sheet rule: provide Subscription ID, OR Link ID, OR (Order ID + Customer ID).
+  if (!subsId && !linkId && !(orderId && custId)) {
     throw new z.errors.Error(
-      'At least one of Subscription ID, Order ID, or Link ID is required.'
+      'Provide Subscription ID, Link ID, or both Order ID and Customer ID.'
     );
   }
 
@@ -42,16 +43,15 @@ const perform = async (z, bundle) => {
   const data = response.json;
   const resultBody = data.body || data;
   const id = subsId || orderId || linkId || 'result';
-  return [{ id, ...resultBody }];
+  return deepConvertDates([{ id, ...resultBody }]);
 };
 
 module.exports = {
-  key: 'fetchSubscriptionStatus',
+  key: 'fetch_subscription_details',
   noun: 'Subscription',
   display: {
-    label: 'Fetch Subscription Status',
-    description:
-      'Checks the current status of a Paytm subscription by subscription ID, order ID, or link ID.',
+    label: 'Fetch Subscription Details',
+    description: 'Fetch subscription status and payment details for your account.',
   },
   operation: {
     cleanInputData: false,
@@ -59,30 +59,10 @@ module.exports = {
       {
         key: 'subsId',
         label: 'Subscription ID',
+        helpText: 'Enter the subscription ID shared by Paytm after successful mandate registration.',
         type: 'string',
         required: false,
-        helpText: 'The Paytm subscription ID. At least one identifier is required.',
-      },
-      {
-        key: 'orderId',
-        label: 'Order ID',
-        type: 'string',
-        required: false,
-        helpText: 'The order ID linked to the subscription.',
-      },
-      {
-        key: 'linkId',
-        label: 'Link ID',
-        type: 'string',
-        required: false,
-        helpText: 'The payment link ID linked to the subscription.',
-      },
-      {
-        key: 'custId',
-        label: 'Customer ID',
-        type: 'string',
-        required: false,
-        helpText: 'Optional customer ID for additional filtering.',
+        placeholder: '1xxxxxxxxxx0',
       },
     ],
     perform,
@@ -94,6 +74,7 @@ module.exports = {
       { key: 'frequency', label: 'Frequency' },
       { key: 'orderId', label: 'Order ID' },
       { key: 'linkId', label: 'Link ID' },
+      { key: 'lastOrderCreationDate', label: 'Last order creation date', type: 'datetime' },
     ],
     sample: {
       id: 'SUBS12345',

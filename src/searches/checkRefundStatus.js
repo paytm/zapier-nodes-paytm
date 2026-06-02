@@ -1,7 +1,7 @@
 'use strict';
 
 const PaytmChecksum = require('../checksum');
-const { buildUrl, trimStr } = require('../utils');
+const { buildUrl, trimStr, deepConvertDates } = require('../utils');
 
 const perform = async (z, bundle) => {
   const keySecret = bundle.authData.keySecret;
@@ -32,32 +32,35 @@ const perform = async (z, bundle) => {
 
   const data = response.json;
   const resultBody = data.body || data;
-  return [{ id: refId, ...resultBody }];
+  return deepConvertDates([{ id: refId, ...resultBody }]);
 };
 
 module.exports = {
-  key: 'checkRefundStatus',
-  noun: 'Refund Status',
+  key: 'fetch_refund_details',
+  noun: 'Refund',
   display: {
-    label: 'Check Refund Status',
-    description: 'Checks the current status of a refund using the order ID and refund reference ID.',
+    label: 'Fetch Refund Details',
+    description: 'Fetch refund details for an order.',
   },
   operation: {
     cleanInputData: false,
     inputFields: [
+    {
+        key: 'refId',
+        label: 'Refund Reference ID',
+        type: 'string',
+        required: true,
+        dynamic: 'refunds_dropdown.refId.refIdDropdownLabel',
+        helpText:
+              'Refund Reference ID entered while initiating the refund.',
+      },
       {
         key: 'orderId',
         label: 'Order ID',
         type: 'string',
         required: true,
-        helpText: 'The original Paytm order ID against which the refund was initiated.',
-      },
-      {
-        key: 'refId',
-        label: 'Refund Reference ID',
-        type: 'string',
-        required: true,
-        helpText: 'The merchant-generated reference ID used when initiating the refund.',
+        helpText:
+          'Order ID against which the refund was initiated.',
       },
     ],
     perform,
@@ -67,8 +70,13 @@ module.exports = {
       { key: 'orderId', label: 'Order ID' },
       { key: 'refundAmount', label: 'Refund Amount' },
       { key: 'status', label: 'Status' },
-      { key: 'txnDate', label: 'Refund Date', type: 'datetime' },
+      { key: 'txnDate', label: 'Refund date', type: 'datetime' },
       { key: 'refundId', label: 'Paytm Refund ID' },
+      { key: 'txnTimestamp', label: 'Transaction timestamp', type: 'datetime' },
+      { key: 'merchantRefundRequestTimestamp', label: 'refund request timestamp', type: 'datetime' },
+      { key: 'acceptRefundTimestamp', label: 'accept refund timestamp', type: 'datetime' },
+      { key: 'userCreditExpectedDate', label: 'credit accept date', type: 'datetime' },
+      { key: 'userCreditInitiateTimestamp', label: 'credit initiate timestamp', type: 'datetime' },
     ],
     sample: {
       id: 'REF12345',

@@ -1,7 +1,7 @@
 'use strict';
 
 const PaytmChecksum = require('../checksum');
-const { buildUrl, trimStr } = require('../utils');
+const { buildUrl, trimStr, deepConvertDates } = require('../utils');
 
 const perform = async (z, bundle) => {
   const keySecret = bundle.authData.keySecret;
@@ -23,9 +23,11 @@ const perform = async (z, bundle) => {
     throw new z.errors.Error('Refund Amount must be a positive number.');
   }
 
+  const txnType = trimStr(bundle.inputData.txnType) || 'REFUND';
+
   const body = {
     mid,
-    txnType: 'REFUND',
+    txnType,
     orderId,
     txnId,
     refId,
@@ -69,86 +71,95 @@ const perform = async (z, bundle) => {
 
   const data = response.json;
   const resultBody = data.body || data;
-  return { id: refId, refId, orderId, txnId, refundAmount, ...resultBody };
+  return deepConvertDates({ id: refId, refId, orderId, txnId, refundAmount, ...resultBody });
 };
 
 module.exports = {
-  key: 'initiateRefund',
+  key: 'create_refund',
   noun: 'Refund',
   display: {
-    label: 'Initiate Refund',
-    description: 'Initiates a refund for a completed Paytm transaction.',
+    label: 'Create Refund',
+    description: 'Create full or partial refunds.',
   },
   operation: {
     cleanInputData: false,
     inputFields: [
       {
+            key: 'txnId',
+            label: 'Transaction ID',
+            type: 'string',
+            required: true,
+            dynamic: 'orders_dropdown.txnId.txnId',
+            helpText:
+              'Paytm transaction ID to initiate refund.',
+      },
+      {
         key: 'orderId',
         label: 'Order ID',
         type: 'string',
         required: true,
-        helpText: 'The original Paytm order ID for which the refund is being initiated.',
-      },
-      {
-        key: 'txnId',
-        label: 'Transaction ID',
-        type: 'string',
-        required: true,
-        helpText: 'The Paytm transaction ID for the payment to be refunded.',
+        helpText:
+          'Order ID for intiating refund.',
       },
       {
         key: 'refId',
-        label: 'Refund Reference ID',
+        label: 'Refund reference ID',
         type: 'string',
         required: true,
-        helpText: 'Your unique reference ID for this refund (used for deduplication and status checks).',
+        placeholder: 'REF_123',
+        helpText: 'Enter a unique reference for this refund. ',
+      },
+      {
+        key: 'txnType',
+        label: 'Transaction type',
+        type: 'string',
+        required: true,
+        choices: { REFUND: 'Refund' },
+        default: 'REFUND',
       },
       {
         key: 'refundAmount',
-        label: 'Refund Amount (₹)',
+        label: 'Refund amount',
         type: 'number',
         required: true,
-        helpText: 'Amount to refund. Sent to two decimal places e.g. 10.00.',
+        placeholder: 'Refund amount in Rupees',
+        helpText: 'Enter amount lower-than-equal-to the order amount to initiate refund.',
       },
       {
         key: 'comments',
         label: 'Comments',
         type: 'string',
         required: false,
-        helpText: 'Optional reason or notes for the refund.',
+        helpText: 'Refund reason.',
       },
       {
         key: 'disableMerchantDebitRetry',
-        label: 'Disable Merchant Debit Retry',
+        label: 'Disable merchant debit retry',
         type: 'boolean',
+        default: 'false',
         required: false,
-        helpText:
-          'When true, disables automatic retry of merchant debit if refund fails.',
-      },
-      {
-        key: 'agentEmployeeId',
-        label: 'Agent: Employee ID',
-        type: 'string',
-        required: false,
-        helpText: 'Optional: ID of the agent initiating this refund.',
+        helpText: 'Enable automatic debit retry if refund fails.',
       },
       {
         key: 'agentName',
-        label: 'Agent: Name',
+        label: 'Agent name',
         type: 'string',
         required: false,
+        helpText: 'Name of agent initiating the refund.',
       },
       {
         key: 'agentPhoneNo',
-        label: 'Agent: Phone Number',
+        label: 'Agent mobile',
         type: 'string',
         required: false,
+        helpText: 'Mobile number of agent initiating the refund.',
       },
       {
         key: 'agentEmail',
-        label: 'Agent: Email',
+        label: 'Agent email',
         type: 'string',
         required: false,
+        helpText: 'Email ID of agent initiating the refund.',
       },
     ],
     perform,
@@ -160,6 +171,7 @@ module.exports = {
       { key: 'refundAmount', label: 'Refund Amount' },
       { key: 'status', label: 'Status' },
       { key: 'refundId', label: 'Paytm Refund ID' },
+      { key: 'txnTimestamp',  label: 'Txn timestamp', type: 'datetime' },
     ],
     sample: {
       id: 'REF12345',
